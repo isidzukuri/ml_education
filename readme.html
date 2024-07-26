@@ -1,0 +1,1434 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><style>body {
+  max-width: 980px;
+  margin: 16px auto;
+}
+
+body .markdown-body
+{
+  padding: 45px;
+}
+
+@font-face {
+  font-family: fontawesome-mini;
+  src: url(data:font/woff;charset=utf-8;base64,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) format('woff');
+}
+
+.markdown-body {
+  font-family: sans-serif;
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  color: #333333;
+  overflow: hidden;
+  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  word-wrap: break-word;
+}
+
+.markdown-body a {
+  background: transparent;
+}
+
+.markdown-body a:active,
+.markdown-body a:hover {
+  outline: 0;
+}
+
+.markdown-body b,
+.markdown-body strong {
+  font-weight: bold;
+}
+
+.markdown-body mark {
+  background: #ff0;
+  color: #000;
+  font-style: italic;
+  font-weight: bold;
+}
+
+.markdown-body sub,
+.markdown-body sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+.markdown-body sup {
+  top: -0.5em;
+}
+.markdown-body sub {
+  bottom: -0.25em;
+}
+
+.markdown-body h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+.markdown-body img {
+  border: 0;
+}
+
+.markdown-body hr {
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+  height: 0;
+}
+
+.markdown-body pre {
+  overflow: auto;
+}
+
+.markdown-body code,
+.markdown-body kbd,
+.markdown-body pre,
+.markdown-body samp {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+
+.markdown-body input {
+  color: inherit;
+  font: inherit;
+  margin: 0;
+}
+
+.markdown-body html input[disabled] {
+  cursor: default;
+}
+
+.markdown-body input {
+  line-height: normal;
+}
+
+.markdown-body input[type="checkbox"] {
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.markdown-body table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.markdown-body td,
+.markdown-body th {
+  padding: 0;
+}
+
+.markdown-body .codehilitetable,
+.markdown-body .highlighttable {
+  border: 0;
+  border-spacing: 0;
+}
+
+.markdown-body .codehilitetable tr,
+.markdown-body .highlighttable {
+  border: 0;
+}
+
+.markdown-body .codehilitetable pre,
+.markdown-body .codehilitetable div.codehilite,
+.markdown-body .highlighttable pre,
+.markdown-body .highlighttable div.highlight {
+  margin: 0;
+}
+
+.markdown-body .linenos,
+.markdown-body .code,
+.markdown-body .codehilitetable td,
+.markdown-body .highlighttable td {
+  border: 0;
+  padding: 0;
+}
+
+.markdown-body td:not(.linenos) .linenodiv {
+  padding: 0 !important;
+}
+
+.markdown-body .code {
+  width: 100%;
+}
+
+.markdown-body .linenos div pre,
+.markdown-body .linenodiv pre,
+.markdown-body .linenodiv {
+  border: 0;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+  -webkit-border-top-left-radius: 3px;
+  -webkit-border-bottom-left-radius: 3px;
+  -moz-border-radius-topleft: 3px;
+  -moz-border-radius-bottomleft: 3px;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+
+.markdown-body .code div pre,
+.markdown-body .code div {
+  border: 0;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+  -webkit-border-top-right-radius: 3px;
+  -webkit-border-bottom-right-radius: 3px;
+  -moz-border-radius-topright: 3px;
+  -moz-border-radius-bottomright: 3px;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+
+.markdown-body * {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.markdown-body input {
+  font: 13px Helvetica, arial, freesans, clean, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  line-height: 1.4;
+}
+
+.markdown-body a {
+  color: #4183c4;
+  text-decoration: none;
+}
+
+.markdown-body a:hover,
+.markdown-body a:focus,
+.markdown-body a:active {
+  text-decoration: underline;
+}
+
+.markdown-body hr {
+  height: 0;
+  margin: 15px 0;
+  overflow: hidden;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.markdown-body hr:before,
+.markdown-body hr:after {
+  display: table;
+  content: " ";
+}
+
+.markdown-body hr:after {
+  clear: both;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  line-height: 1.1;
+}
+
+.markdown-body h1 {
+  font-size: 30px;
+}
+
+.markdown-body h2 {
+  font-size: 21px;
+}
+
+.markdown-body h3 {
+  font-size: 16px;
+}
+
+.markdown-body h4 {
+  font-size: 14px;
+}
+
+.markdown-body h5 {
+  font-size: 12px;
+}
+
+.markdown-body h6 {
+  font-size: 11px;
+}
+
+.markdown-body blockquote {
+  margin: 0;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown-body ol ol,
+.markdown-body ul ol {
+  list-style-type: lower-roman;
+}
+
+.markdown-body ul ul ol,
+.markdown-body ul ol ol,
+.markdown-body ol ul ol,
+.markdown-body ol ol ol {
+  list-style-type: lower-alpha;
+}
+
+.markdown-body dd {
+  margin-left: 0;
+}
+
+.markdown-body code,
+.markdown-body pre,
+.markdown-body samp {
+  font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  font-size: 12px;
+}
+
+.markdown-body pre {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown-body kbd {
+  background-color: #e7e7e7;
+  background-image: -moz-linear-gradient(#fefefe, #e7e7e7);
+  background-image: -webkit-linear-gradient(#fefefe, #e7e7e7);
+  background-image: linear-gradient(#fefefe, #e7e7e7);
+  background-repeat: repeat-x;
+  border-radius: 2px;
+  border: 1px solid #cfcfcf;
+  color: #000;
+  padding: 3px 5px;
+  line-height: 10px;
+  font: 11px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  display: inline-block;
+}
+
+.markdown-body>*:first-child {
+  margin-top: 0 !important;
+}
+
+.markdown-body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+.markdown-body .headerlink {
+  font: normal 400 16px fontawesome-mini;
+  vertical-align: middle;
+  margin-left: -16px;
+  float: left;
+  display: inline-block;
+  text-decoration: none;
+  opacity: 0;
+  color: #333;
+}
+
+.markdown-body .headerlink:focus {
+  outline: none;
+}
+
+.markdown-body h1 .headerlink {
+  margin-top: 0.8rem;
+}
+
+.markdown-body h2 .headerlink,
+.markdown-body h3 .headerlink {
+  margin-top: 0.6rem;
+}
+
+.markdown-body h4 .headerlink {
+  margin-top: 0.2rem;
+}
+
+.markdown-body h5 .headerlink,
+.markdown-body h6 .headerlink {
+  margin-top: 0;
+}
+
+.markdown-body .headerlink:hover,
+.markdown-body h1:hover .headerlink,
+.markdown-body h2:hover .headerlink,
+.markdown-body h3:hover .headerlink,
+.markdown-body h4:hover .headerlink,
+.markdown-body h5:hover .headerlink,
+.markdown-body h6:hover .headerlink {
+  opacity: 1;
+  text-decoration: none;
+}
+
+.markdown-body h1 {
+  padding-bottom: 0.3em;
+  font-size: 2.25em;
+  line-height: 1.2;
+  border-bottom: 1px solid #eee;
+}
+
+.markdown-body h2 {
+  padding-bottom: 0.3em;
+  font-size: 1.75em;
+  line-height: 1.225;
+  border-bottom: 1px solid #eee;
+}
+
+.markdown-body h3 {
+  font-size: 1.5em;
+  line-height: 1.43;
+}
+
+.markdown-body h4 {
+  font-size: 1.25em;
+}
+
+.markdown-body h5 {
+  font-size: 1em;
+}
+
+.markdown-body h6 {
+  font-size: 1em;
+  color: #777;
+}
+
+.markdown-body p,
+.markdown-body blockquote,
+.markdown-body ul,
+.markdown-body ol,
+.markdown-body dl,
+.markdown-body table,
+.markdown-body pre,
+.markdown-body .admonition {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.markdown-body hr {
+  height: 4px;
+  padding: 0;
+  margin: 16px 0;
+  background-color: #e7e7e7;
+  border: 0 none;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 2em;
+}
+
+.markdown-body ul ul,
+.markdown-body ul ol,
+.markdown-body ol ol,
+.markdown-body ol ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown-body li>p {
+  margin-top: 16px;
+}
+
+.markdown-body dl {
+  padding: 0;
+}
+
+.markdown-body dl dt {
+  padding: 0;
+  margin-top: 16px;
+  font-size: 1em;
+  font-style: italic;
+  font-weight: bold;
+}
+
+.markdown-body dl dd {
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+
+.markdown-body blockquote {
+  padding: 0 15px;
+  color: #777;
+  border-left: 4px solid #ddd;
+}
+
+.markdown-body blockquote>:first-child {
+  margin-top: 0;
+}
+
+.markdown-body blockquote>:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body table {
+  display: block;
+  width: 100%;
+  overflow: auto;
+  word-break: normal;
+  word-break: keep-all;
+}
+
+.markdown-body table th {
+  font-weight: bold;
+}
+
+.markdown-body table th,
+.markdown-body table td {
+  padding: 6px 13px;
+  border: 1px solid #ddd;
+}
+
+.markdown-body table tr {
+  background-color: #fff;
+  border-top: 1px solid #ccc;
+}
+
+.markdown-body table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+.markdown-body img {
+  max-width: 100%;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.markdown-body code,
+.markdown-body samp {
+  padding: 0;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+  margin: 0;
+  font-size: 85%;
+  border-radius: 3px;
+}
+
+.markdown-body code:not(.highlight):not(.codehilite), .markdown-body samp {
+  background-color: rgba(0,0,0,0.04);
+}
+
+.markdown-body code:before,
+.markdown-body code:after {
+  letter-spacing: -0.2em;
+  content: "\00a0";
+}
+
+.markdown-body pre>code {
+  padding: 0;
+  margin: 0;
+  font-size: 100%;
+  word-break: normal;
+  white-space: pre;
+  background: transparent;
+  border: 0;
+}
+
+.markdown-body .codehilite,
+.markdown-body .highlight {
+  margin-bottom: 16px;
+}
+
+.markdown-body .codehilite pre,
+.markdown-body .highlight pre,
+.markdown-body pre {
+  padding: 16px;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+}
+
+.markdown-body .codehilite,
+.markdown-body .highlight,
+.markdown-body pre {
+  border-radius: 3px;
+}
+
+.markdown-body :not(.highlight) > pre {
+  background-color: #f7f7f7;
+}
+
+.markdown-body .codehilite pre,
+.markdown-body .highlight pre {
+  margin-bottom: 0;
+  word-break: normal;
+}
+
+.markdown-body pre {
+  word-wrap: normal;
+}
+
+.markdown-body pre code {
+  display: inline;
+  max-width: initial;
+  padding: 0;
+  margin: 0;
+  overflow: initial;
+  line-height: inherit;
+  word-wrap: normal;
+  background-color: transparent;
+  border: 0;
+}
+
+.markdown-body pre code:before,
+.markdown-body pre code:after {
+  content: normal;
+}
+
+/* Admonition */
+.markdown-body .admonition {
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  position: relative;
+  border-radius: 3px;
+  border: 1px solid #e0e0e0;
+  border-left: 6px solid #333;
+  padding: 10px 10px 10px 30px;
+}
+
+.markdown-body .admonition table {
+  color: #333;
+}
+
+.markdown-body .admonition p {
+  padding: 0;
+}
+
+.markdown-body .admonition-title {
+  font-weight: bold;
+  margin: 0;
+}
+
+.markdown-body .admonition>.admonition-title {
+  color: #333;
+}
+
+.markdown-body .attention>.admonition-title {
+  color: #a6d796;
+}
+
+.markdown-body .caution>.admonition-title {
+  color: #d7a796;
+}
+
+.markdown-body .hint>.admonition-title {
+  color: #96c6d7;
+}
+
+.markdown-body .danger>.admonition-title {
+  color: #c25f77;
+}
+
+.markdown-body .question>.admonition-title {
+  color: #96a6d7;
+}
+
+.markdown-body .note>.admonition-title {
+  color: #d7c896;
+}
+
+.markdown-body .admonition:before,
+.markdown-body .attention:before,
+.markdown-body .caution:before,
+.markdown-body .hint:before,
+.markdown-body .danger:before,
+.markdown-body .question:before,
+.markdown-body .note:before {
+  font: normal normal 16px fontawesome-mini;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  line-height: 1.5;
+  color: #333;
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding-top: 10px;
+  padding-left: 10px;
+}
+
+.markdown-body .admonition:before {
+  content: "\f056\00a0";
+  color: 333;
+}
+
+.markdown-body .attention:before {
+  content: "\f058\00a0";
+  color: #a6d796;
+}
+
+.markdown-body .caution:before {
+  content: "\f06a\00a0";
+  color: #d7a796;
+}
+
+.markdown-body .hint:before {
+  content: "\f05a\00a0";
+  color: #96c6d7;
+}
+
+.markdown-body .danger:before {
+  content: "\f057\00a0";
+  color: #c25f77;
+}
+
+.markdown-body .question:before {
+  content: "\f059\00a0";
+  color: #96a6d7;
+}
+
+.markdown-body .note:before {
+  content: "\f040\00a0";
+  color: #d7c896;
+}
+
+.markdown-body .admonition::after {
+  content: normal;
+}
+
+.markdown-body .attention {
+  border-left: 6px solid #a6d796;
+}
+
+.markdown-body .caution {
+  border-left: 6px solid #d7a796;
+}
+
+.markdown-body .hint {
+  border-left: 6px solid #96c6d7;
+}
+
+.markdown-body .danger {
+  border-left: 6px solid #c25f77;
+}
+
+.markdown-body .question {
+  border-left: 6px solid #96a6d7;
+}
+
+.markdown-body .note {
+  border-left: 6px solid #d7c896;
+}
+
+.markdown-body .admonition>*:first-child {
+  margin-top: 0 !important;
+}
+
+.markdown-body .admonition>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* progress bar*/
+.markdown-body .progress {
+  display: block;
+  width: 300px;
+  margin: 10px 0;
+  height: 24px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  background-color: #ededed;
+  position: relative;
+  box-shadow: inset -1px 1px 3px rgba(0, 0, 0, .1);
+}
+
+.markdown-body .progress-label {
+  position: absolute;
+  text-align: center;
+  font-weight: bold;
+  width: 100%; margin: 0;
+  line-height: 24px;
+  color: #333;
+  text-shadow: 1px 1px 0 #fefefe, -1px -1px 0 #fefefe, -1px 1px 0 #fefefe, 1px -1px 0 #fefefe, 0 1px 0 #fefefe, 0 -1px 0 #fefefe, 1px 0 0 #fefefe, -1px 0 0 #fefefe, 1px 1px 2px #000;
+  -webkit-font-smoothing: antialiased !important;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.markdown-body .progress-bar {
+  height: 24px;
+  float: left;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  background-color: #96c6d7;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), inset 0 -1px 0 rgba(0, 0, 0, .1);
+  background-size: 30px 30px;
+  background-image: -webkit-linear-gradient(
+    135deg, rgba(255, 255, 255, .4) 27%,
+    transparent 27%,
+    transparent 52%, rgba(255, 255, 255, .4) 52%,
+    rgba(255, 255, 255, .4) 77%,
+    transparent 77%, transparent
+  );
+  background-image: -moz-linear-gradient(
+    135deg,
+    rgba(255, 255, 255, .4) 27%, transparent 27%,
+    transparent 52%, rgba(255, 255, 255, .4) 52%,
+    rgba(255, 255, 255, .4) 77%, transparent 77%,
+    transparent
+  );
+  background-image: -ms-linear-gradient(
+    135deg,
+    rgba(255, 255, 255, .4) 27%, transparent 27%,
+    transparent 52%, rgba(255, 255, 255, .4) 52%,
+    rgba(255, 255, 255, .4) 77%, transparent 77%,
+    transparent
+  );
+  background-image: -o-linear-gradient(
+    135deg,
+    rgba(255, 255, 255, .4) 27%, transparent 27%,
+    transparent 52%, rgba(255, 255, 255, .4) 52%,
+    rgba(255, 255, 255, .4) 77%, transparent 77%,
+    transparent
+  );
+  background-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, .4) 27%, transparent 27%,
+    transparent 52%, rgba(255, 255, 255, .4) 52%,
+    rgba(255, 255, 255, .4) 77%, transparent 77%,
+    transparent
+  );
+}
+
+.markdown-body .progress-100plus .progress-bar {
+  background-color: #a6d796;
+}
+
+.markdown-body .progress-80plus .progress-bar {
+  background-color: #c6d796;
+}
+
+.markdown-body .progress-60plus .progress-bar {
+  background-color: #d7c896;
+}
+
+.markdown-body .progress-40plus .progress-bar {
+  background-color: #d7a796;
+}
+
+.markdown-body .progress-20plus .progress-bar {
+  background-color: #d796a6;
+}
+
+.markdown-body .progress-0plus .progress-bar {
+  background-color: #c25f77;
+}
+
+.markdown-body .candystripe-animate .progress-bar{
+  -webkit-animation: animate-stripes 3s linear infinite;
+  -moz-animation: animate-stripes 3s linear infinite;
+  animation: animate-stripes 3s linear infinite;
+}
+
+@-webkit-keyframes animate-stripes {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 60px 0;
+  }
+}
+
+@-moz-keyframes animate-stripes {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 60px 0;
+  }
+}
+
+@keyframes animate-stripes {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 60px 0;
+  }
+}
+
+.markdown-body .gloss .progress-bar {
+  box-shadow:
+    inset 0 4px 12px rgba(255, 255, 255, .7),
+    inset 0 -12px 0 rgba(0, 0, 0, .05);
+}
+
+/* MultiMarkdown Critic Blocks */
+.markdown-body .critic_mark {
+  background: #ff0;
+}
+
+.markdown-body .critic_delete {
+  color: #c82829;
+  text-decoration: line-through;
+}
+
+.markdown-body .critic_insert {
+  color: #718c00 ;
+  text-decoration: underline;
+}
+
+.markdown-body .critic_comment {
+  color: #8e908c;
+  font-style: italic;
+}
+
+.markdown-body .headeranchor {
+  font: normal normal 16px fontawesome-mini;
+  line-height: 1;
+  display: inline-block;
+  text-decoration: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.headeranchor:before {
+  content: '\e157';
+}
+
+.markdown-body .task-list-item {
+  list-style-type: none;
+}
+
+.markdown-body .task-list-item+.task-list-item {
+  margin-top: 3px;
+}
+
+.markdown-body .task-list-item input {
+  margin: 0 4px 0.25em -20px;
+  vertical-align: middle;
+}
+
+.markdown-body diagram-div, .markdown-body div.uml-sequence-diagram, .markdown-body, div.uml-flowchart {
+  overflow: auto;
+}
+
+/* Media */
+@media only screen and (min-width: 480px) {
+  .markdown-body {
+    font-size:14px;
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  .markdown-body {
+    font-size:16px;
+  }
+}
+
+@media print {
+  .markdown-body * {
+    background: transparent !important;
+    color: black !important;
+    filter:none !important;
+    -ms-filter: none !important;
+  }
+
+  .markdown-body {
+    font-size:12pt;
+    max-width:100%;
+    outline:none;
+    border: 0;
+  }
+
+  .markdown-body a,
+  .markdown-body a:visited {
+    text-decoration: underline;
+  }
+
+  .markdown-body .headeranchor-link {
+    display: none;
+  }
+
+  .markdown-body a[href]:after {
+    content: " (" attr(href) ")";
+  }
+
+  .markdown-body abbr[title]:after {
+    content: " (" attr(title) ")";
+  }
+
+  .markdown-body .ir a:after,
+  .markdown-body a[href^="javascript:"]:after,
+  .markdown-body a[href^="#"]:after {
+    content: "";
+  }
+
+  .markdown-body pre {
+    white-space: pre;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .markdown-body pre,
+  .markdown-body blockquote {
+    border: 1px solid #999;
+    padding-right: 1em;
+    page-break-inside: avoid;
+  }
+
+  .markdown-body .progress,
+  .markdown-body .progress-bar {
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+  }
+
+  .markdown-body .progress {
+    border: 1px solid #ddd;
+  }
+
+  .markdown-body .progress-bar {
+    height: 22px;
+    border-right: 1px solid #ddd;
+  }
+
+  .markdown-body tr,
+  .markdown-body img {
+    page-break-inside: avoid;
+  }
+
+  .markdown-body img {
+    max-width: 100% !important;
+  }
+
+  .markdown-body p,
+  .markdown-body h2,
+  .markdown-body h3 {
+    orphans: 3;
+    widows: 3;
+  }
+
+  .markdown-body h2,
+  .markdown-body h3 {
+    page-break-after: avoid;
+  }
+}
+</style><style>/*GitHub*/
+.highlight {background-color:#f7f7f7;color:#333333;}
+.highlight .hll {background-color:#ffffcc;}
+.highlight .c{color:#999988;font-style:italic}
+.highlight .err{color:#a61717;background-color:#e3d2d2}
+.highlight .k{font-weight:bold}
+.highlight .o{font-weight:bold}
+.highlight .cm{color:#999988;font-style:italic}
+.highlight .cp{color:#999999;font-weight:bold}
+.highlight .c1{color:#999988;font-style:italic}
+.highlight .cs{color:#999999;font-weight:bold;font-style:italic}
+.highlight .gd{color:#000000;background-color:#ffdddd}
+.highlight .ge{font-style:italic}
+.highlight .gr{color:#aa0000}
+.highlight .gh{color:#999999}
+.highlight .gi{color:#000000;background-color:#ddffdd}
+.highlight .go{color:#888888}
+.highlight .gp{color:#555555}
+.highlight .gs{font-weight:bold}
+.highlight .gu{color:#800080;font-weight:bold}
+.highlight .gt{color:#aa0000}
+.highlight .kc{font-weight:bold}
+.highlight .kd{font-weight:bold}
+.highlight .kn{font-weight:bold}
+.highlight .kp{font-weight:bold}
+.highlight .kr{font-weight:bold}
+.highlight .kt{color:#445588;font-weight:bold}
+.highlight .m{color:#009999}
+.highlight .s{color:#dd1144}
+.highlight .n{color:#333333}
+.highlight .na{color:teal}
+.highlight .nb{color:#0086b3}
+.highlight .nc{color:#445588;font-weight:bold}
+.highlight .no{color:teal}
+.highlight .ni{color:purple}
+.highlight .ne{color:#990000;font-weight:bold}
+.highlight .nf{color:#990000;font-weight:bold}
+.highlight .nn{color:#555555}
+.highlight .nt{color:navy}
+.highlight .nv{color:teal}
+.highlight .ow{font-weight:bold}
+.highlight .w{color:#bbbbbb}
+.highlight .mf{color:#009999}
+.highlight .mh{color:#009999}
+.highlight .mi{color:#009999}
+.highlight .mo{color:#009999}
+.highlight .sb{color:#dd1144}
+.highlight .sc{color:#dd1144}
+.highlight .sd{color:#dd1144}
+.highlight .s2{color:#dd1144}
+.highlight .se{color:#dd1144}
+.highlight .sh{color:#dd1144}
+.highlight .si{color:#dd1144}
+.highlight .sx{color:#dd1144}
+.highlight .sr{color:#009926}
+.highlight .s1{color:#dd1144}
+.highlight .ss{color:#990073}
+.highlight .bp{color:#999999}
+.highlight .vc{color:teal}
+.highlight .vg{color:teal}
+.highlight .vi{color:teal}
+.highlight .il{color:#009999}
+.highlight .gc{color:#999;background-color:#EAF2F5}
+</style><title>readme</title></head><body><article class="markdown-body"><h2 id="ml-pipeline">ML pipeline:<a class="headerlink" href="#ml-pipeline" title="Permanent link"></a></h2>
+<ol>
+<li>import data</li>
+<li>clean data, preprocessing. For example: handle missing data(throw away, replace&hellip;)</li>
+<li>normalize data</li>
+<li>learm machine. For example: create neural network and feed training data set</li>
+<li>tune(regularization)</li>
+<li>test result with control data set</li>
+</ol>
+<h2 id="tensor">Tensor<a class="headerlink" href="#tensor" title="Permanent link"></a></h2>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/tensor.png"></p>
+<p>Tensors are the fundamental building block of machine learning.</p>
+<p>Their job is to represent data in a numerical way.</p>
+<p>In mathematics, a tensor is an algebraic object that describes a multilinear relationship between sets of algebraic objects related to a vector space. Tensors may map between different objects such as vectors, scalars, and even other tensors. There are many types of tensors.</p>
+<p>Is a multi-dimensional matrix containing elements.</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/datatypes_tensor.jpg"></p>
+<h3 id="image-representation-example">Image representation example<a class="headerlink" href="#image-representation-example" title="Permanent link"></a></h3>
+<p>Its possible to represent an image as a tensor with shape <code>[3, 224, 224]</code> which would mean <code>[colour_channels, height, width]</code>, as in the image has 3 colour channels (red, green, blue), a height of 224 pixels and a width of 224 pixels. In tensor-speak (the language used to describe tensors), the tensor would have three dimensions, one for colour_channels, height and width.</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/image_tensor_representation.png"></p>
+<p><a href="https://www.learnpytorch.io/00_pytorch_fundamentals/#introduction-to-tensors">https://www.learnpytorch.io/00_pytorch_fundamentals/#introduction-to-tensors</a></p>
+<p><a href="https://en.wikipedia.org/wiki/Tensor">https://en.wikipedia.org/wiki/Tensor</a></p>
+<h2 id="train-model">Train model<a class="headerlink" href="#train-model" title="Permanent link"></a></h2>
+<p>The process of training an ML model involves providing an ML algorithm (that is, the learning algorithm) with training data to learn from. The term ML model refers to the model artifact that is created by the training process. </p>
+<p>The learning algorithm finds patterns in the training data that map the input data attributes to the target (the answer that you want to predict), and it outputs an ML model that captures these patterns. </p>
+<h3 id="hyperparameter">Hyperparameter<a class="headerlink" href="#hyperparameter" title="Permanent link"></a></h3>
+<p>In machine learning, a hyperparameter is a parameter, such as the learning rate or choice of optimizer, which specifies details of the learning process, hence the name hyperparameter. This is in contrast to parameters which determine the model itself. </p>
+<p><a href="https://en.wikipedia.org/wiki/Hyperparameter_(machine_learning">https://en.wikipedia.org/wiki/Hyperparameter_(machine_learning</a>)</p>
+<h3 id="loss-function">Loss function<a class="headerlink" href="#loss-function" title="Permanent link"></a></h3>
+<p>At its core, a loss function is incredibly simple: It&rsquo;s a method of evaluating how well your algorithm models your dataset. If your predictions are totally off, your loss function will output a higher number. If they&rsquo;re pretty good, it&rsquo;ll output a lower number.</p>
+<p><a href="https://en.wikipedia.org/wiki/Loss_function">https://en.wikipedia.org/wiki/Loss_function</a></p>
+<h3 id="optimizer">Optimizer<a class="headerlink" href="#optimizer" title="Permanent link"></a></h3>
+<p>Tells your model how to update its internal parameters to best lower the loss.</p>
+<p><a href="https://www.learnpytorch.io/01_pytorch_workflow/">https://www.learnpytorch.io/01_pytorch_workflow/</a></p>
+<h3 id="how-to-pick-lossoptimizer-function">How to pick loss/optimizer function?<a class="headerlink" href="#how-to-pick-lossoptimizer-function" title="Permanent link"></a></h3>
+<p>Table of various loss functions and optimizers, there are more but these some common ones:</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/loss_optimizer_table.jpg"></p>
+<p><a href="https://pytorch.org/docs/stable/nn.html#loss-functions">https://pytorch.org/docs/stable/nn.html#loss-functions</a></p>
+<p><a href="https://pytorch.org/docs/stable/optim.html">https://pytorch.org/docs/stable/optim.html</a></p>
+<h4 id="learning-rate">learning rate<a class="headerlink" href="#learning-rate" title="Permanent link"></a></h4>
+<p>lr is the learning rate you&rsquo;d like the optimizer to update the parameters at, higher means the optimizer will try larger updates (these can sometimes be too large and the optimizer will fail to work), lower means the optimizer will try smaller updates (these can sometimes be too small and the optimizer will take too long to find the ideal values). The learning rate is considered a hyperparameter (because it&rsquo;s set by a machine learning engineer). Common starting values for the learning rate are 0.01, 0.001, 0.0001, however, these can also be adjusted over time</p>
+<h2 id="algorithms">Algorithms<a class="headerlink" href="#algorithms" title="Permanent link"></a></h2>
+<h3 id="knn-algorithm">KNN algorithm<a class="headerlink" href="#knn-algorithm" title="Permanent link"></a></h3>
+<p><img alt="" src="/home/isidzukuri/Desktop/ml_algorithms/images/knn.gif" /></p>
+<p>The k-nearest neighbors (KNN) algorithm is a non-parametric, supervised learning classifier, which uses proximity to make classifications or predictions about the grouping of an individual data point. It is one of the popular and simplest classification and regression classifiers used in machine learning today.</p>
+<p>While there are several distance measures that you can choose from, this article will only cover the following:</p>
+<ul>
+<li><strong>Euclidean distance</strong> (p=2): This is the most commonly used distance measure, and it is limited to real-valued vectors. Using the below formula, it measures a straight line between the query point and the other point being measured.</li>
+</ul>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/knn_d1.png" height="300"></p>
+<ul>
+<li><strong>Manhattan distance</strong> (p=1): This is also another popular distance metric, which measures the absolute value between two points. It is also referred to as taxicab distance or city block distance as it is commonly visualized with a grid, illustrating how one might navigate from one address to another via city streets.</li>
+</ul>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/knn_d2.png" height="300"></p>
+<ul>
+<li><strong>Minkowski distance</strong> : This distance measure is the generalized form of Euclidean and Manhattan distance metrics. The parameter, p, in the formula below, allows for the creation of other distance metrics. Euclidean distance is represented by this formula when p is equal to two, and Manhattan distance is denoted with p equal to one.</li>
+</ul>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/knn_d3.png" height="300"></p>
+<ul>
+<li><strong>Hamming distance</strong> : This technique is used typically used with Boolean or string vectors, identifying the points where the vectors do not match. As a result, it has also been referred to as the overlap metric. This can be represented with the following formula:</li>
+</ul>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/knn_d4.png" height="300"></p>
+<p><a href="https://www.ibm.com/topics/knn">https://www.ibm.com/topics/knn</a></p>
+<h3 id="k-means-clustering">k-means clustering<a class="headerlink" href="#k-means-clustering" title="Permanent link"></a></h3>
+<p>K-means is an unsupervised learning method for clustering data points. The algorithm iteratively divides data points into K clusters by minimizing the variance in each cluster.</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/k_means.gif" height="300"></p>
+<p><a href="https://www.w3schools.com/python/python_ml_k-means.asp">https://www.w3schools.com/python/python_ml_k-means.asp</a></p>
+<p><a href="https://en.wikipedia.org/wiki/K-means_clustering">https://en.wikipedia.org/wiki/K-means_clustering</a></p>
+<h3 id="hotspots">Hotspots<a class="headerlink" href="#hotspots" title="Permanent link"></a></h3>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/hotspots.jpg" height="420"></p>
+<h3 id="random-cut-forest">Random Cut Forest<a class="headerlink" href="#random-cut-forest" title="Permanent link"></a></h3>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/random_cut_forest.jpg" height="420"></p>
+<h3 id="reinforcement-learning">Reinforcement learning<a class="headerlink" href="#reinforcement-learning" title="Permanent link"></a></h3>
+<p>Range of techniques based on expierience. In its most general form a reinforcement learning algorithm has three components:</p>
+<ul>
+<li>an exploration strategy for trying different actions</li>
+<li>reinforcement function that gives feedback on how good each action is</li>
+<li>learning rule that links two above together</li>
+</ul>
+<p>Reinforcement learning deals with a unique problem setup where an arbitrary agent is trying to learn the optimal way of interacting with an environment. In return for its actions, it receives rewards; the agent’s goal is to find an optimal policy that maximizes cumulative numerical return.</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/rl_cycle.png" height="420"></p>
+<p><a href="https://en.wikipedia.org/wiki/Reinforcement_learning">https://en.wikipedia.org/wiki/Reinforcement_learning</a></p>
+<h4 id="q-learning">Q learning<a class="headerlink" href="#q-learning" title="Permanent link"></a></h4>
+<p>Q-learning is a model-free reinforcement learning algorithm to learn the value of an action in a particular state. It does not require a model of the environment (hence &ldquo;model-free&rdquo;), and it can handle problems with stochastic transitions and rewards without requiring adaptations.</p>
+<p>For any finite Markov decision process (FMDP), Q-learning finds an optimal policy in the sense of maximizing the expected value of the total reward over any and all successive steps, starting from the current state. Q-learning can identify an optimal action-selection policy for any given FMDP, given infinite exploration time and a partly-random policy. &ldquo;Q&rdquo; refers to the function that the algorithm computes – the expected rewards for an action taken in a given state.</p>
+<p>Fits for state machines, decision trees.</p>
+<h3 id="neural-networks">Neural networks<a class="headerlink" href="#neural-networks" title="Permanent link"></a></h3>
+<p>is a model inspired by the structure and function of biological neural networks in animal brains.</p>
+<p>An ANN consists of connected units or nodes called artificial neurons, which loosely model the neurons in a brain. These are connected by edges, which model the synapses in a brain. Each artificial neuron receives signals from connected neurons, then processes them and sends a signal to other connected neurons. The &ldquo;signal&rdquo; is a real number, and the output of each neuron is computed by some non-linear function of the sum of its inputs, called the activation function. The strength of the signal at each connection is determined by a weight, which adjusts during the learning process. </p>
+<p>Exemples of NN topography</p>
+<p><img alt="example of NN" src="/home/isidzukuri/Desktop/ml_algorithms/images/nn.png" />
+<img alt="example of NN" src="/home/isidzukuri/Desktop/ml_algorithms/images/nn.gif" /></p>
+<p>An <strong>activation function</strong> in the context of neural networks is a mathematical function applied to the output of a neuron. The purpose of an activation function is to introduce non-linearity into the model, allowing the network to learn and represent complex patterns in the data. Without non-linearity, a neural network would essentially behave like a linear regression model, regardless of the number of layers it has.</p>
+<p>The activation function decides whether a neuron should be activated or not by calculating the weighted sum and further adding bias to it. The purpose of the activation function is to introduce non-linearity into the output of a neuron. </p>
+<ul>
+<li><a href="https://www.geeksforgeeks.org/activation-functions-neural-networks/">https://www.geeksforgeeks.org/activation-functions-neural-networks/</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Activation_function">https://en.wikipedia.org/wiki/Activation_function</a></li>
+<li><a href="https://towardsdatascience.com/the-mostly-complete-chart-of-neural-networks-explained-3fb6f2367464">https://towardsdatascience.com/the-mostly-complete-chart-of-neural-networks-explained-3fb6f2367464</a></li>
+<li><a class="magiclink magiclink-github magiclink-repository" href="https://github.com/isidzukuri/nn_discovery" title="GitHub Repository: isidzukuri/nn_discovery">isidzukuri/nn_discovery</a></li>
+</ul>
+<h4 id="raw-logits-predictions-probabilities-predictions-labels">Raw logits -&gt; Predictions probabilities -&gt; Predictions labels<a class="headerlink" href="#raw-logits-predictions-probabilities-predictions-labels" title="Permanent link"></a></h4>
+<p>model outputs are going to be <strong>logits</strong></p>
+<p><strong>logits</strong> can be converted into <strong>prediction_probabilities</strong> by passing them to activation function</p>
+<p>Then <strong>prediction_probabilities</strong> can be converted to <strong>prediction_labels</strong></p>
+<h4 id="softmax">Softmax<a class="headerlink" href="#softmax" title="Permanent link"></a></h4>
+<p>Recall that logistic regression produces a decimal between 0 and 1.0. For example, a logistic regression output of 0.8 from an email classifier suggests an 80% chance of an email being spam and a 20% chance of it being not spam. Clearly, the sum of the probabilities of an email being either spam or not spam is 1.0.</p>
+<p>Softmax extends this idea into a multi-class world. That is, Softmax assigns decimal probabilities to each class in a multi-class problem. Those decimal probabilities must add up to 1.0. This additional constraint helps training converge more quickly than it otherwise would.</p>
+<p><img alt="Softmax example" src="/home/isidzukuri/Desktop/ml_algorithms/images/softmax-example_orig.png" /></p>
+<p><a href="https://developers.google.com/machine-learning/crash-course/multi-class-neural-networks/softmax">https://developers.google.com/machine-learning/crash-course/multi-class-neural-networks/softmax</a></p>
+<h4 id="gradient-descent">Gradient Descent<a class="headerlink" href="#gradient-descent" title="Permanent link"></a></h4>
+<p>Gradient Descent stands as a cornerstone orchestrating the intricate dance of model optimization. At its core, it is a numerical optimization algorithm that aims to find the optimal parameters—weights and biases—of a neural network by minimizing a defined cost function.</p>
+<p>Gradient Descent (GD) is a widely used optimization algorithm in machine learning and deep learning that minimises the cost function of a neural network model during training. It works by iteratively adjusting the weights or parameters of the model in the direction of the negative gradient of the cost function until the minimum of the cost function is reached.</p>
+<p>The learning happens during the backpropagation while training the neural network-based model. There is a term known as Gradient Descent, which is used to optimize the weight and biases based on the cost function. The cost function evaluates the difference between the actual and predicted outputs.</p>
+<p><a href="https://www.geeksforgeeks.org/gradient-descent-algorithm-and-its-variants/">https://www.geeksforgeeks.org/gradient-descent-algorithm-and-its-variants/</a></p>
+<h4 id="backpropagation">Backpropagation<a class="headerlink" href="#backpropagation" title="Permanent link"></a></h4>
+<p>The algorithm is used to effectively train a neural network through a method called chain rule. In simple terms, after each forward pass through a network, backpropagation performs a backward pass while adjusting the model’s parameters (weights and biases).</p>
+<p>Backpropagation is a gradient estimation method used to train neural network models. The gradient estimate is used by the optimization algorithm to compute the network parameter updates. </p>
+<p><a href="https://en.wikipedia.org/wiki/Backpropagation">https://en.wikipedia.org/wiki/Backpropagation</a></p>
+<h4 id="convolutional-neural-networks-cnn">Convolutional neural networks (CNN)<a class="headerlink" href="#convolutional-neural-networks-cnn" title="Permanent link"></a></h4>
+<p>is the extended version of artificial neural networks (ANN) which is predominantly used to extract the feature from the grid-like matrix dataset. For example visual datasets like images or videos where data patterns play an extensive role.</p>
+<p><img alt="CNN" src="/home/isidzukuri/Desktop/ml_algorithms/images/cnn.png" /></p>
+<p>Practical Applications of CNNs:
+- Image classification
+- Object detection
+- Facial recognition</p>
+<p><a href="https://www.youtube.com/watch?v=YRhxdVk_sIs">https://www.youtube.com/watch?v=YRhxdVk_sIs</a></p>
+<p><a href="https://www.datacamp.com/tutorial/introduction-to-convolutional-neural-networks-cnns">https://www.datacamp.com/tutorial/introduction-to-convolutional-neural-networks-cnns</a></p>
+<p><a href="https://www.geeksforgeeks.org/introduction-convolution-neural-network/">https://www.geeksforgeeks.org/introduction-convolution-neural-network/</a></p>
+<h3 id="more-algorithms">More algorithms<a class="headerlink" href="#more-algorithms" title="Permanent link"></a></h3>
+<ul>
+<li>
+<p>AWS built-in algorithms or pretrained models: <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/algos.html">https://docs.aws.amazon.com/sagemaker/latest/dg/algos.html</a></p>
+</li>
+<li>
+<p><a href="https://scikit-learn.org/stable/user_guide.html">https://scikit-learn.org/stable/user_guide.html</a></p>
+</li>
+</ul>
+<h3 id="machine-learning-components">machine learning components<a class="headerlink" href="#machine-learning-components" title="Permanent link"></a></h3>
+<p><a href="https://paperswithcode.com/methods">https://paperswithcode.com/methods</a></p>
+<h3 id="binary-classification">Binary classification<a class="headerlink" href="#binary-classification" title="Permanent link"></a></h3>
+<p>is the task of classifying the elements of a set into one of two groups (each called class).
+Some of the methods commonly used for binary classification are:</p>
+<ul>
+<li>Decision trees</li>
+<li>Random forests</li>
+<li>Bayesian networks</li>
+<li>Support vector machines</li>
+<li>Neural networks</li>
+<li>Logistic regression</li>
+<li>Probit model</li>
+<li>Genetic Programming</li>
+<li>Multi expression programming</li>
+<li>Linear genetic programming </li>
+</ul>
+<p><a href="https://en.wikipedia.org/wiki/Binary_classification">https://en.wikipedia.org/wiki/Binary_classification</a></p>
+<h3 id="multiclass-classification">Multiclass classification<a class="headerlink" href="#multiclass-classification" title="Permanent link"></a></h3>
+<p>is the problem of classifying instances into one of three or more classes</p>
+<p>Several algorithms have been developed based on: 
+- neural networks
+- decision trees
+- k-nearest neighbors
+- naive Bayes
+- support vector machines 
+- extreme learning machines </p>
+<p><a href="https://en.wikipedia.org/wiki/Multiclass_classification">https://en.wikipedia.org/wiki/Multiclass_classification</a></p>
+<h3 id="multi-label-classification">Multi-label classification<a class="headerlink" href="#multi-label-classification" title="Permanent link"></a></h3>
+<p>Target can be assigned more than one option</p>
+<h2 id="regularization">Regularization<a class="headerlink" href="#regularization" title="Permanent link"></a></h2>
+<p>is a set of methods for reducing overfitting in machine learning models. Typically, regularization trades a marginal decrease in training accuracy for an increase in generalizability.</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/under_over_fit.png"></p>
+<p><a href="https://www.ibm.com/topics/regularization">https://www.ibm.com/topics/regularization</a></p>
+<p><a href="https://www.geeksforgeeks.org/regularization-in-machine-learning/">https://www.geeksforgeeks.org/regularization-in-machine-learning/</a></p>
+<p>The commonly used regularization with linear models techniques are: </p>
+<ul>
+<li>Lasso Regularization – L1 Regularization</li>
+<li>Ridge Regularization – L2 Regularization</li>
+<li>Elastic Net Regularization – L1 and L2 Regularization</li>
+</ul>
+<h3 id="types-of-regularization-in-machine-learning">Types of regularization in machine learning<a class="headerlink" href="#types-of-regularization-in-machine-learning" title="Permanent link"></a></h3>
+<h4 id="dataset">Dataset<a class="headerlink" href="#dataset" title="Permanent link"></a></h4>
+<ul>
+<li><strong>Data augmentation</strong> is a regularization technique that modifies model training data. It expands the size of the training set by creating artificial data samples derived from pre-existing training data. Adding more samples to the training set, particularly of instances rare in real world data, exposes a model to a greater quantity and diversity of data from which it learns. </li>
+</ul>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/augmentation.png"></p>
+<h4 id="model-training">Model training<a class="headerlink" href="#model-training" title="Permanent link"></a></h4>
+<ul>
+<li><strong>Early stopping</strong> is perhaps the most readily implemented regularization technique. In short, it limits the number of iterations during model training. Here, a model continuously passes through the training data, stopping once there is no improvement (and perhaps even deterioration) in training and validation accuracy. The goal is to train a model until it has reached the lowest possible training error preceding a plateau or increase in validation error.</li>
+</ul>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/early_stop.png"></p>
+<h4 id="neural-networks_1">Neural networks<a class="headerlink" href="#neural-networks_1" title="Permanent link"></a></h4>
+<ul>
+<li><strong>Dropout</strong> regularizes neural networks by randomly dropping out nodes, along with their input and output connections, from the network during training. Dropout trains several variations of a fixed-sized architecture, with each variation having different randomized nodes left out of the architecture.</li>
+<li><strong>Weight decay</strong></li>
+</ul>
+<h2 id="confusion-matrix">Confusion matrix<a class="headerlink" href="#confusion-matrix" title="Permanent link"></a></h2>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/confusion_matrix.jpg" height="300"></p>
+<h2 id="performance-metrics-in-machine-learning">Performance Metrics in Machine Learning<a class="headerlink" href="#performance-metrics-in-machine-learning" title="Permanent link"></a></h2>
+<p>There are at least  7 different categories and types of metrics used to measure machine learning performance, including: </p>
+<ol>
+<li>Classification Metrics</li>
+</ol>
+<ul>
+<li>Accuracy</li>
+<li>Precision</li>
+<li>Recall</li>
+<li>Logarithmic Loss</li>
+<li>F1-Score</li>
+<li>Receiver Operating Characteristic  </li>
+<li>Area Under Curve</li>
+</ul>
+<ol start="2">
+<li>Regression Metrics</li>
+</ol>
+<ul>
+<li>Mean Squared Error</li>
+<li>Mean Absolute Error</li>
+</ul>
+<ol start="3">
+<li>Ranking Metrics</li>
+</ol>
+<ul>
+<li>Mean Reciprocal Rate</li>
+<li>Discounted Cumulative Gain</li>
+<li>Non-Discounted Cumulative Gain</li>
+</ul>
+<ol start="4">
+<li>Statistical Metrics</li>
+</ol>
+<ul>
+<li>Correlation</li>
+</ul>
+<ol start="5">
+<li>Computer Vision Metrics</li>
+</ol>
+<ul>
+<li>Peak Signal-to-Noise</li>
+<li>Structural Similarity Index</li>
+<li>Intersection over Union</li>
+</ul>
+<ol start="6">
+<li>Natural Language Processing Metrics</li>
+</ol>
+<ul>
+<li>Perplexity</li>
+<li>Bilingual Evaluation Understudy Score</li>
+</ul>
+<ol start="7">
+<li>Deep Learning Related Metrics</li>
+</ol>
+<ul>
+<li>Inception Score</li>
+<li>Frechet Inception Distance</li>
+</ul>
+<h4 id="accuracy">Accuracy<a class="headerlink" href="#accuracy" title="Permanent link"></a></h4>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/accuracy.jpg"></p>
+<h4 id="precision">Precision<a class="headerlink" href="#precision" title="Permanent link"></a></h4>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/precision.jpg"></p>
+<p>What proportion of positive identifications was actually correct</p>
+<h4 id="recall">Recall<a class="headerlink" href="#recall" title="Permanent link"></a></h4>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/recall.jpg"></p>
+<p>What proportion of actual positives was identified correctly</p>
+<p>* The <strong>tradeoff between precision and recall</strong> occurs because increasing the threshold for classification will result in fewer false positives (increasing precision) but also more false negatives (decreasing recall), and vice versa.</p>
+<h4 id="f1-score">F1 score<a class="headerlink" href="#f1-score" title="Permanent link"></a></h4>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/f1.jpg"></p>
+<p>The range for F1 scores is between 0 and 1, with one being the absolute best score possible. Naturally then, the higher the F1 score, the better, with a poor score denoting both low precision and low recall. As your recall and precision scores increase, your F1 score will also increase. That means if you find  your F1 score is low, a good place to start looking for solutions is within your precision or recall metrics.  </p>
+<p><a href="https://www.v7labs.com/blog/performance-metrics-in-machine-learning">https://www.v7labs.com/blog/performance-metrics-in-machine-learning</a></p>
+<p><a href="https://www.aiacceleratorinstitute.com/evaluating-machine-learning-models-metrics-and-techniques/">https://www.aiacceleratorinstitute.com/evaluating-machine-learning-models-metrics-and-techniques/</a></p>
+<p><a href="https://developers.google.com/machine-learning/crash-course/classification/precision-and-recall">https://developers.google.com/machine-learning/crash-course/classification/precision-and-recall</a></p>
+<h2 id="ensemble-methods">Ensemble methods<a class="headerlink" href="#ensemble-methods" title="Permanent link"></a></h2>
+<p>In statistics and machine learning, ensemble methods use multiple learning algorithms to obtain better predictive performance than could be obtained from any of the constituent learning algorithms alone.</p>
+<p>Ensemble means ‘a collection of things’ and in Machine Learning terminology, Ensemble learning refers to the approach of combining multiple ML models to produce a more accurate and robust prediction compared to any individual model. It implements an ensemble of fast algorithms (classifiers) such as decision trees for learning and allows them to vote.</p>
+<p>There are many types of ensembles. For example:</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/bagging_boosting.jpg" height="300"></p>
+<p><a href="https://en.wikipedia.org/wiki/Ensemble_learning">https://en.wikipedia.org/wiki/Ensemble_learning</a></p>
+<p><a href="https://www.geeksforgeeks.org/a-comprehensive-guide-to-ensemble-learning/">https://www.geeksforgeeks.org/a-comprehensive-guide-to-ensemble-learning/</a></p>
+<h2 id="ml-infrastructure">ML infrastructure<a class="headerlink" href="#ml-infrastructure" title="Permanent link"></a></h2>
+<p>Examples:</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/docker_ml.jpg" height="500"></p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/torchserve.gif"></p>
+<h2 id="ml-lifecycle">ML lifecycle<a class="headerlink" href="#ml-lifecycle" title="Permanent link"></a></h2>
+<p>Example:</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/ml_lifecycle.jpg"></p>
+<h2 id="running-ml-on-edge-an-mobile-devices">Running ML on edge an mobile devices<a class="headerlink" href="#running-ml-on-edge-an-mobile-devices" title="Permanent link"></a></h2>
+<p>On-device machine learning is a paradigm shift from traditional cloud-based ML. It allows:</p>
+<ul>
+<li>Direct Processing: ML tasks are performed directly on the device, such as smartphones or tablets.</li>
+<li>Independence from the Cloud: It operates without the need for a constant connection to the cloud.</li>
+<li>Local Data Processing: Data is processed locally, ensuring faster response times and immediate inference. Inference, in this context, refers to the process of applying a trained machine learning model to make predictions or draw conclusions from input data.</li>
+</ul>
+<p>When planning the implementation on mobile devices, there are several considerations to keep in mind:</p>
+<ul>
+<li>Data Pre and Post-processing: On the web, we often perform data pre and post-processing using libraries like OpenCV and NumPy. However, these libraries may not be directly available in the mobile framework, so alternative approaches or libraries may be needed.</li>
+<li>Choice of Language: The programming language used for web scripts becomes important, as not all web libraries and frameworks are easily transferrable to mobile platforms.</li>
+<li>Accuracy vs. Constraints: It’s essential to define the desired accuracy for your mobile model and consider any time constraints. Smaller models are often preferred on mobile devices due to factors like app size and processing speed, but this may result in a drop in accuracy.</li>
+<li>Memory Management: Unlike web devices, mobile devices have more limited memory resources. Larger model sizes and complex computational code can lead to memory-related issues and even cause the mobile app to crash.</li>
+</ul>
+<p>There are various tools and frameworks that can help us add on-device ML. </p>
+<p>For Android app:</p>
+<ul>
+<li>ML Kit: A Google SDK that provides ready-to-use ML models and APIs for common tasks such as barcode scanning, text recognition, face detection, pose detection, etc. The ML Kit also supports custom TensorFlow Lite models and AutoML Vision Edge models.</li>
+<li>MediaPipe: A Google framework that enables building custom ML pipelines using pre-built components such as graphs, calculators, models, etc. MediaPipe also provides ready-to-use solutions for common tasks such as face mesh detection, hand tracking, object detection, etc.</li>
+<li>TFLite: A Google library that allows running TensorFlow models on mobile devices with low latency and a small binary size. TFLite also supports hardware acceleration, model optimization, and metadata extraction.</li>
+</ul>
+<p>For IOS devices:</p>
+<ul>
+<li>Create ML</li>
+<li>Core ML</li>
+</ul>
+<p><a href="https://gursimarsm.medium.com/how-to-add-machine-learning-to-an-android-app-5bb8c6c185ef">https://gursimarsm.medium.com/how-to-add-machine-learning-to-an-android-app-5bb8c6c185ef</a></p>
+<p><a href="https://medium.com/eumentis/how-we-navigated-running-machine-learning-models-on-edge-device-7c67b1ff1b97">https://medium.com/eumentis/how-we-navigated-running-machine-learning-models-on-edge-device-7c67b1ff1b97</a></p>
+<p><strong>Amazon SageMaker Neo</strong>  </p>
+<p>provides compilation support for popular machine learning frameworks. You can deploy your Neo-compiled edge devices such as the Raspberry Pi 3, Texas Instruments&rsquo; Sitara, Jetson TX1, and more.</p>
+<p>Automatically optimizes machine learning models for inference on cloud instances and edge devices to run faster with no loss in accuracy. You start with a machine learning model already built with DarkNet, Keras, MXNet, PyTorch, TensorFlow, TensorFlow-Lite, ONNX, or XGBoost and trained in Amazon SageMaker or anywhere else. Then you choose your target hardware platform, which can be a SageMaker hosting instance or an edge device based on processors from Ambarella, Apple, ARM, Intel, MediaTek, Nvidia, NXP, Qualcomm, RockChip, or Texas Instruments. With a single click, SageMaker Neo optimizes the trained model and compiles it into an executable. </p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/sage_maker_neo.jpg"></p>
+<p><a href="https://aws.amazon.com/sagemaker/neo/">https://aws.amazon.com/sagemaker/neo/</a></p>
+<p><a href="https://docs.aws.amazon.com/sagemaker/latest/dg/neo-edge-devices.html">https://docs.aws.amazon.com/sagemaker/latest/dg/neo-edge-devices.html</a></p>
+<h2 id="frameworks">Frameworks<a class="headerlink" href="#frameworks" title="Permanent link"></a></h2>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/frameworks_comparison.jpg"></p>
+<p><strong>pytorch</strong> vs <strong>tensorflow</strong> <a href="https://www.upwork.com/resources/pytorch-vs-tensorflow">https://www.upwork.com/resources/pytorch-vs-tensorflow</a></p>
+<p><a href="https://mljourney.com/comparison-of-popular-machine-learning-frameworks/">https://mljourney.com/comparison-of-popular-machine-learning-frameworks/</a></p>
+<p><a href="https://en.wikipedia.org/wiki/Comparison_of_deep_learning_software">https://en.wikipedia.org/wiki/Comparison_of_deep_learning_software</a></p>
+<h2 id="python-ecosystem">Python ecosystem<a class="headerlink" href="#python-ecosystem" title="Permanent link"></a></h2>
+<p><strong>NumPy</strong> -  a library for the Python programming language, adding support for large, multi-dimensional arrays and matrices, along with a large collection of high-level mathematical functions to operate on these arrays.</p>
+<p><strong>Matplotlib</strong> is a comprehensive library for creating static, animated, and interactive visualizations in Python. Matplotlib makes easy things easy and hard things possible. </p>
+<p><strong>Pandas</strong> is a fast, powerful, flexible and easy to use open source data analysis and manipulation tool</p>
+<p><strong>scikit-learn</strong> - Simple and efficient tools for predictive data analysis. Collection of algorithms. Open-source machine learning library. It features various classification, regression and clustering algorithms including support-vector machines, random forests, gradient boosting, k-means and DBSCAN, and is designed to interoperate with the Python numerical and scientific libraries NumPy and SciPy. Collection of toy datasets generation methods.</p>
+<p><strong>TorchMetricks</strong>  is a collection of 100+ PyTorch metrics implementations and an easy-to-use API to create custom metrics. <a href="https://lightning.ai/docs/torchmetrics/stable/">https://lightning.ai/docs/torchmetrics/stable/</a></p>
+<h2 id="useful-links">Useful links<a class="headerlink" href="#useful-links" title="Permanent link"></a></h2>
+<p>Datasets, models:</p>
+<ul>
+<li>
+<p><a href="https://huggingface.co/">https://huggingface.co/</a></p>
+</li>
+<li>
+<p><a href="https://www.kaggle.com/">https://www.kaggle.com/</a></p>
+</li>
+<li>
+<p><a href="https://en.wikipedia.org/wiki/MNIST_database">https://en.wikipedia.org/wiki/MNIST_database</a> [images]</p>
+</li>
+<li>
+<p><a class="magiclink magiclink-github magiclink-repository" href="https://github.com/zalandoresearch/fashion-mnist" title="GitHub Repository: zalandoresearch/fashion-mnist">zalandoresearch/fashion-mnist</a> [images]</p>
+</li>
+</ul>
+<p>Courses:</p>
+<ul>
+<li>
+<p><a href="https://www.udemy.com/course/aws-machine-learning/">https://www.udemy.com/course/aws-machine-learning/</a></p>
+</li>
+<li>
+<p><a href="https://www.udemy.com/course/pytorch-for-deep-learning/">https://www.udemy.com/course/pytorch-for-deep-learning/</a></p>
+</li>
+<li>
+<p><a href="https://www.learnpytorch.io/">https://www.learnpytorch.io/</a></p>
+</li>
+</ul>
+<p>Online NN builder:
+- <a href="https://playground.tensorflow.org/">https://playground.tensorflow.org/</a></p></article></body></html>
