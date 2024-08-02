@@ -48,6 +48,10 @@ https://en.wikipedia.org/wiki/Hyperparameter_(machine_learning)
 ### Loss function
 At its core, a loss function is incredibly simple: It's a method of evaluating how well your algorithm models your dataset. If your predictions are totally off, your loss function will output a higher number. If they're pretty good, it'll output a lower number.
 
+**Interpreting Loss Curves**: https://developers.google.com/machine-learning/testing-debugging/metrics/interpretic
+
+<img src="images/04-loss-curves-overfitting-underfitting-ideal.jpg">
+
 https://en.wikipedia.org/wiki/Loss_function
 
 
@@ -220,13 +224,57 @@ Practical Applications of CNNs:
 - Image classification
 - Object detection
 - Facial recognition
+- Optical flow (task of predicting movement between two images)
 
+**CNN explainer** https://poloclub.github.io/cnn-explainer/
+
+
+#### Optical Flow
+
+Optical flow is the task of predicting movement between two images, usually two consecutive frames of a video. Optical flow models take two images as input, and predict a flow: the flow indicates the displacement of every single pixel in the first image, and maps it to its corresponding pixel in the second image. 
 
 https://www.youtube.com/watch?v=YRhxdVk_sIs
 
 https://www.datacamp.com/tutorial/introduction-to-convolutional-neural-networks-cnns
 
 https://www.geeksforgeeks.org/introduction-convolution-neural-network/
+
+
+#### Transfer learning
+Transferring information from one machine learning task to another. 
+
+Transfer learning allows us to take the patterns (also called weights) another model has learned from another problem and use them for our own problem.
+
+Options:
+
+- use pretrained model as it is
+
+- use pretrained model and weights on different training dataset + adding/editing some layers
+
+<img src="images/06-effnet-b0-feature-extractor.png">
+
+Input data should go thru the same transformations as for original model.
+
+The process of transfer learning usually goes: freeze some base layers of a pretrained model (typically the `features` section) and then adjust the output layers (also called `head/classifier` layers) to suit your needs.
+
+https://www.learnpytorch.io/06_pytorch_transfer_learning/
+
+
+#### Which pretrained model should be chosen
+It depends on your problem/the device you're working with.
+
+Generally, the higher number in the model name (e.g. efficientnet_b0() -> efficientnet_b1() -> efficientnet_b7()) means better performance but a larger model.
+
+You might think better performance is always better, right?
+
+That's true but some better performing models are too big for some devices.
+
+For example, say you'd like to run your model on a mobile-device, you'll have to take into account the limited compute resources on the device, thus you'd be looking for a smaller model.
+
+But if you've got unlimited compute power, as The Bitter Lesson states, you'd likely take the biggest, most compute hungry model you can.
+
+Understanding this performance vs. speed vs. size tradeoff will come with time and practice.
+
 
 
 ### More algorithms
@@ -298,6 +346,8 @@ The commonly used regularization with linear models techniques are:
 - **Data augmentation** is a regularization technique that modifies model training data. It expands the size of the training set by creating artificial data samples derived from pre-existing training data. Adding more samples to the training set, particularly of instances rare in real world data, exposes a model to a greater quantity and diversity of data from which it learns. 
 
 <img src="images/augmentation.png">
+
+https://pytorch.org/blog/how-to-train-state-of-the-art-models-using-torchvision-latest-primitives/
 
 #### Model training
 
@@ -499,18 +549,36 @@ https://en.wikipedia.org/wiki/Comparison_of_deep_learning_software
 
 **TorchMetricks**  is a collection of 100+ PyTorch metrics implementations and an easy-to-use API to create custom metrics. https://lightning.ai/docs/torchmetrics/stable/
 
+**torchinfo** provides information complementary to what is provided by `print(your_model)` in PyTorch. It prints topology of model, summary, etc https://github.com/TylerYep/torchinfo
+
+**TensorBoard** provides the visualization and tooling needed for machine learning experimentation. Experiment tracking, performance plots, etc. https://www.tensorflow.org/tensorboard
+
 
 ## Useful links
 
+Machine Learning Glossary:
+
+- https://developers.google.com/machine-learning/glossary
+
 Datasets, models:
+
+- https://github.com/huggingface/pytorch-image-models
 
 - https://huggingface.co/
 
 - https://www.kaggle.com/
 
+- https://paperswithcode.com/sota
+
+- https://github.com/satellite-image-deep-learning [topological, satelite images]
+
 - https://en.wikipedia.org/wiki/MNIST_database [images]
 
 - https://github.com/zalandoresearch/fashion-mnist [images]
+
+- https://www.image-net.org/ [images]
+
+
 
 
 Courses:
@@ -522,5 +590,21 @@ Courses:
 - https://www.learnpytorch.io/
 
 
+Lectures:
+
+- https://www.youtube.com/watch?v=ErnWZxJovaM&list=PLtBw6njQRU-rwp5__7C0oIVt26ZgjG9NI&index=1
+
+
+Articles:
+
+- https://arxiv.org/
+
+
 Online NN builder:
+
 - https://playground.tensorflow.org/
+
+
+Performance:
+
+- https://horace.io/brrr_intro.html

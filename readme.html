@@ -1105,6 +1105,8 @@ body .markdown-body
 <p><a href="https://en.wikipedia.org/wiki/Hyperparameter_(machine_learning">https://en.wikipedia.org/wiki/Hyperparameter_(machine_learning</a>)</p>
 <h3 id="loss-function">Loss function<a class="headerlink" href="#loss-function" title="Permanent link"></a></h3>
 <p>At its core, a loss function is incredibly simple: It&rsquo;s a method of evaluating how well your algorithm models your dataset. If your predictions are totally off, your loss function will output a higher number. If they&rsquo;re pretty good, it&rsquo;ll output a lower number.</p>
+<p><strong>Interpreting Loss Curves</strong>: <a href="https://developers.google.com/machine-learning/testing-debugging/metrics/interpretic">https://developers.google.com/machine-learning/testing-debugging/metrics/interpretic</a></p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/04-loss-curves-overfitting-underfitting-ideal.jpg"></p>
 <p><a href="https://en.wikipedia.org/wiki/Loss_function">https://en.wikipedia.org/wiki/Loss_function</a></p>
 <h3 id="optimizer">Optimizer<a class="headerlink" href="#optimizer" title="Permanent link"></a></h3>
 <p>Tells your model how to update its internal parameters to best lower the loss.</p>
@@ -1199,10 +1201,34 @@ body .markdown-body
 <p>Practical Applications of CNNs:
 - Image classification
 - Object detection
-- Facial recognition</p>
+- Facial recognition
+- Optical flow (task of predicting movement between two images)</p>
+<p><strong>CNN explainer</strong> <a href="https://poloclub.github.io/cnn-explainer/">https://poloclub.github.io/cnn-explainer/</a></p>
+<h4 id="optical-flow">Optical Flow<a class="headerlink" href="#optical-flow" title="Permanent link"></a></h4>
+<p>Optical flow is the task of predicting movement between two images, usually two consecutive frames of a video. Optical flow models take two images as input, and predict a flow: the flow indicates the displacement of every single pixel in the first image, and maps it to its corresponding pixel in the second image. </p>
 <p><a href="https://www.youtube.com/watch?v=YRhxdVk_sIs">https://www.youtube.com/watch?v=YRhxdVk_sIs</a></p>
 <p><a href="https://www.datacamp.com/tutorial/introduction-to-convolutional-neural-networks-cnns">https://www.datacamp.com/tutorial/introduction-to-convolutional-neural-networks-cnns</a></p>
 <p><a href="https://www.geeksforgeeks.org/introduction-convolution-neural-network/">https://www.geeksforgeeks.org/introduction-convolution-neural-network/</a></p>
+<h4 id="transfer-learning">Transfer learning<a class="headerlink" href="#transfer-learning" title="Permanent link"></a></h4>
+<p>Transferring information from one machine learning task to another. </p>
+<p>Options:</p>
+<ul>
+<li>
+<p>use pretrained model as it is</p>
+</li>
+<li>
+<p>use weights of pretrained model on different training dataset + adding/editing some layers</p>
+</li>
+</ul>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/06-effnet-b0-feature-extractor.png"></p>
+<h4 id="which-pretrained-model-should-be-chosen">Which pretrained model should be chosen<a class="headerlink" href="#which-pretrained-model-should-be-chosen" title="Permanent link"></a></h4>
+<p>It depends on your problem/the device you&rsquo;re working with.</p>
+<p>Generally, the higher number in the model name (e.g. efficientnet_b0() -&gt; efficientnet_b1() -&gt; efficientnet_b7()) means better performance but a larger model.</p>
+<p>You might think better performance is always better, right?</p>
+<p>That&rsquo;s true but some better performing models are too big for some devices.</p>
+<p>For example, say you&rsquo;d like to run your model on a mobile-device, you&rsquo;ll have to take into account the limited compute resources on the device, thus you&rsquo;d be looking for a smaller model.</p>
+<p>But if you&rsquo;ve got unlimited compute power, as The Bitter Lesson states, you&rsquo;d likely take the biggest, most compute hungry model you can.</p>
+<p>Understanding this performance vs. speed vs. size tradeoff will come with time and practice.</p>
 <h3 id="more-algorithms">More algorithms<a class="headerlink" href="#more-algorithms" title="Permanent link"></a></h3>
 <ul>
 <li>
@@ -1259,6 +1285,7 @@ Some of the methods commonly used for binary classification are:</p>
 <li><strong>Data augmentation</strong> is a regularization technique that modifies model training data. It expands the size of the training set by creating artificial data samples derived from pre-existing training data. Adding more samples to the training set, particularly of instances rare in real world data, exposes a model to a greater quantity and diversity of data from which it learns. </li>
 </ul>
 <p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/augmentation.png"></p>
+<p><a href="https://pytorch.org/blog/how-to-train-state-of-the-art-models-using-torchvision-latest-primitives/">https://pytorch.org/blog/how-to-train-state-of-the-art-models-using-torchvision-latest-primitives/</a></p>
 <h4 id="model-training">Model training<a class="headerlink" href="#model-training" title="Permanent link"></a></h4>
 <ul>
 <li><strong>Early stopping</strong> is perhaps the most readily implemented regularization technique. In short, it limits the number of iterations during model training. Here, a model continuously passes through the training data, stopping once there is no improvement (and perhaps even deterioration) in training and validation accuracy. The goal is to train a model until it has reached the lowest possible training error preceding a plateau or increase in validation error.</li>
@@ -1406,6 +1433,9 @@ Some of the methods commonly used for binary classification are:</p>
 <p>Datasets, models:</p>
 <ul>
 <li>
+<p><a class="magiclink magiclink-github magiclink-repository" href="https://github.com/huggingface/pytorch-image-models" title="GitHub Repository: huggingface/pytorch-image-models">huggingface/pytorch-image-models</a></p>
+</li>
+<li>
 <p><a href="https://huggingface.co/">https://huggingface.co/</a></p>
 </li>
 <li>
@@ -1416,6 +1446,9 @@ Some of the methods commonly used for binary classification are:</p>
 </li>
 <li>
 <p><a class="magiclink magiclink-github magiclink-repository" href="https://github.com/zalandoresearch/fashion-mnist" title="GitHub Repository: zalandoresearch/fashion-mnist">zalandoresearch/fashion-mnist</a> [images]</p>
+</li>
+<li>
+<p><a href="https://www.image-net.org/">https://www.image-net.org/</a> [images]</p>
 </li>
 </ul>
 <p>Courses:</p>
@@ -1430,5 +1463,19 @@ Some of the methods commonly used for binary classification are:</p>
 <p><a href="https://www.learnpytorch.io/">https://www.learnpytorch.io/</a></p>
 </li>
 </ul>
-<p>Online NN builder:
-- <a href="https://playground.tensorflow.org/">https://playground.tensorflow.org/</a></p></article></body></html>
+<p>Lectures:</p>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=ErnWZxJovaM&amp;list=PLtBw6njQRU-rwp5__7C0oIVt26ZgjG9NI&amp;index=1">https://www.youtube.com/watch?v=ErnWZxJovaM&amp;list=PLtBw6njQRU-rwp5__7C0oIVt26ZgjG9NI&amp;index=1</a></li>
+</ul>
+<p>Articles:</p>
+<ul>
+<li><a href="https://arxiv.org/">https://arxiv.org/</a></li>
+</ul>
+<p>Online NN builder:</p>
+<ul>
+<li><a href="https://playground.tensorflow.org/">https://playground.tensorflow.org/</a></li>
+</ul>
+<p>Performance:</p>
+<ul>
+<li><a href="https://horace.io/brrr_intro.html">https://horace.io/brrr_intro.html</a></li>
+</ul></article></body></html>
