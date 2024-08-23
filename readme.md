@@ -55,29 +55,637 @@ At its core, a loss function is incredibly simple: It's a method of evaluating h
 https://en.wikipedia.org/wiki/Loss_function
 
 
-### Optimizer
+### Train/Test Split Procedure
 
-Tells your model how to update its internal parameters to best lower the loss.
+1. Clean and adjust data as necessary for X and y
+1. Split Data in Train/Test for both X and y
+1. Fit/Train Scaler on Training X Data
+1. Scale X Test Data
+1. Create Model
+1. Fit/Train Model on X Train Data
+1. Evaluate Model on X Test Data (by creating predictions and comparing to Y_test)
+1. Adjust Parameters as Necessary and repeat steps 6 and 7
 
-https://www.learnpytorch.io/01_pytorch_workflow/
+```python
+import numpy as np
+import pandas as pd
 
-### How to pick loss/optimizer function?
+df = pd.read_csv("../DATA/Advertising.csv")
 
-Table of various loss functions and optimizers, there are more but these some common ones:
+## 1. CREATE X and y
+X = df.drop('sales',axis=1)
+y = df['sales']
 
-<img src="images/loss_optimizer_table.jpg">
+# 2. TRAIN TEST SPLIT
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=101)
 
-https://pytorch.org/docs/stable/nn.html#loss-functions
+# 3. TRAIN SCALER
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+scaler.fit(X_train)
 
-https://pytorch.org/docs/stable/optim.html
+# 4 SCALE DATA
+X_train = scaler.transform(X_train)
+X_test = scaler.transform(X_test)
+
+from sklearn.linear_model import Ridge
+
+# 5. Poor Alpha Choice on purpose!
+model = Ridge(alpha=100)
+
+# 6. Fit/Train Model on X Train Data
+model.fit(X_train,y_train)
+
+# 7. evaluation
+y_pred = model.predict(X_test)
+
+from sklearn.metrics import mean_squared_error
+
+mean_squared_error(y_test,y_pred) # 7.34177578903413
+
+# 8. Adjust Parameters and Re-evaluate
+model = Ridge(alpha=1)
+model.fit(X_train,y_train)
+y_pred = model.predict(X_test)
+
+mean_squared_error(y_test,y_pred) # 2.319021579428752
+```
+
+### Train/Validation/Test Split Procedure
+
+This is often also called a "hold-out" set, since you should not adjust parameters based on the final test set, but instead use it only for reporting final expected performance.
+
+1. Clean and adjust data as necessary for X and y
+1. Split Data in Train/Validation/Test for both X and y
+1. Fit/Train Scaler on Training X Data
+1. Scale X Eval Data
+1. Create Model
+1. Fit/Train Model on X Train Data
+1. Evaluate Model on X Evaluation Data (by creating predictions and comparing to Y_eval)
+1. Adjust Parameters as Necessary and repeat steps 6 and 7
+1. Get final metrics on Test set (not allowed to go back and adjust after this!)
+
+```python
+import numpy as np
+import pandas as pd
+
+df = pd.read_csv("../DATA/Advertising.csv")
+
+## 1. CREATE X and y
+X = df.drop('sales',axis=1)
+y = df['sales']
+
+######################################################################
+#### SPLIT TWICE! Here we create TRAIN | VALIDATION | TEST  #########
+####################################################################
+from sklearn.model_selection import train_test_split
+
+# 70% of data is training data, set aside other 30%
+X_train, X_OTHER, y_train, y_OTHER = train_test_split(X, y, test_size=0.3, random_state=101)
+
+# Remaining 30% is split into evaluation and test sets
+# Each is 15% of the original data size
+X_eval, X_test, y_eval, y_test = train_test_split(X_OTHER, y_OTHER, test_size=0.5, random_state=101)
+
+# SCALE DATA
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+scaler.fit(X_train)
+X_train = scaler.transform(X_train)
+X_eval = scaler.transform(X_eval)
+X_test = scaler.transform(X_test)
+
+model = Ridge(alpha=100)
+model.fit(X_train,y_train)
+y_eval_pred = model.predict(X_eval)
+
+from sklearn.metrics import mean_squared_error
+
+# Evaluation
+mean_squared_error(y_eval,y_eval_pred) # 7.320101458823871
+
+model = Ridge(alpha=1)
+model.fit(X_train,y_train)
+y_eval_pred = model.predict(X_eval)
+
+# Another Evaluation
+mean_squared_error(y_eval,y_eval_pred) # 2.383783075056986
+
+# Final Evaluation (Can no longer edit parameters after this!)
+y_final_test_pred = model.predict(X_test)
+
+mean_squared_error(y_test,y_final_test_pred) # 2.254260083800517
+```
+
+### Cross validation
+
+Here is a flowchart of typical cross validation workflow in model training. The best parameters can be determined by grid search techniques.
+
+<img src="images/grid_search_workflow.png" height=350>
+
+When evaluating different settings (“hyperparameters”) for estimators, such as the C setting that must be manually set for an SVM, there is still a risk of overfitting on the test set because the parameters can be tweaked until the estimator performs optimally. This way, knowledge about the test set can “leak” into the model and evaluation metrics no longer report on generalization performance. To solve this problem, yet another part of the dataset can be held out as a so-called “validation set”: training proceeds on the training set, after which evaluation is done on the validation set, and when the experiment seems to be successful, final evaluation can be done on the test set.
+
+However, by partitioning the available data into three sets, we drastically reduce the number of samples which can be used for learning the model, and the results can depend on a particular random choice for the pair of (train, validation) sets.
+
+A solution to this problem is a procedure called cross-validation (CV for short). A test set should still be held out for final evaluation, but the validation set is no longer needed when doing CV. In the basic approach, called k-fold CV, the training set is split into k smaller sets (other approaches are described below, but generally follow the same principles). The following procedure is followed for each of the k “folds”:
+
+- A model is trained using `k - 1`of the folds as training data;
+
+- the resulting model is validated on the remaining part of the data (i.e., it is used as a test set to compute a performance measure such as accuracy).
+
+The performance measure reported by k-fold cross-validation is then the average of the values computed in the loop. This approach can be computationally expensive, but does not waste too much data (as is the case when fixing an arbitrary validation set), which is a major advantage in problems such as inverse inference where the number of samples is very small.
+
+<img src="images/grid_search_cross_validation.png" height=350>
+
+```python
+## CREATE X and y
+X = df.drop('sales',axis=1)
+y = df['sales']
+
+# TRAIN TEST SPLIT
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=101)
+
+# SCALE DATA
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+scaler.fit(X_train)
+X_train = scaler.transform(X_train)
+X_test = scaler.transform(X_test)
+
+model = Ridge(alpha=100)
+
+from sklearn.model_selection import cross_validate
+
+# SCORING OPTIONS:
+# https://scikit-learn.org/stable/modules/model_evaluation.html
+scores = cross_validate(model,X_train,y_train,
+                         scoring=['neg_mean_absolute_error','neg_mean_squared_error','max_error'],cv=5)
 
 
-#### learning rate
+# Adjust model
 
-lr is the learning rate you'd like the optimizer to update the parameters at, higher means the optimizer will try larger updates (these can sometimes be too large and the optimizer will fail to work), lower means the optimizer will try smaller updates (these can sometimes be too small and the optimizer will take too long to find the ideal values). The learning rate is considered a hyperparameter (because it's set by a machine learning engineer). Common starting values for the learning rate are 0.01, 0.001, 0.0001, however, these can also be adjusted over time
+model = Ridge(alpha=1)
+
+# SCORING OPTIONS:
+# https://scikit-learn.org/stable/modules/model_evaluation.html
+scores = cross_validate(model,X_train,y_train,
+                         scoring=['neg_mean_absolute_error','neg_mean_squared_error','max_error'],cv=5)
+
+
+# Final Evaluation (Can no longer edit parameters after this!)
+# Need to fit the model first!
+model.fit(X_train,y_train)
+
+y_final_test_pred = model.predict(X_test)
+
+mean_squared_error(y_test,y_final_test_pred) # 2.319021579428752
+```
+
+https://scikit-learn.org/stable/modules/cross_validation.html
+
+[scikit-learn course, Section 11: Feature Engineering and Data Preparation](https://www.udemy.com/course/python-for-machine-learning-data-science-masterclass/)
+
+### Grid Search
+
+We can search through a variety of combinations of hyperparameters with a grid search. While many linear models are quite simple and even come with their own specialized versions that do a search for you, this method of a grid search will can be applied to any model from sklearn.
+
+A search consists of:
+
+- an estimator (regressor or classifier such as sklearn.svm.SVC());
+- a parameter space;
+- a method for searching or sampling candidates;
+- a cross-validation scheme
+- a score function.
+
+
+```python
+df = pd.read_csv("../DATA/Advertising.csv")
+## CREATE X and y
+X = df.drop('sales',axis=1)
+y = df['sales']
+
+# TRAIN TEST SPLIT
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=101)
+
+# SCALE DATA
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+scaler.fit(X_train)
+X_train = scaler.transform(X_train)
+X_test = scaler.transform(X_test)
+
+from sklearn.linear_model import ElasticNet
+
+base_elastic_model = ElasticNet()
+
+param_grid = {'alpha':[0.1,1,5,10,50,100],
+              'l1_ratio':[.1, .5, .7, .9, .95, .99, 1]}
+
+from sklearn.model_selection import GridSearchCV
+
+# verbose number a personal preference
+grid_model = GridSearchCV(estimator=base_elastic_model,
+                          param_grid=param_grid,
+                          scoring='neg_mean_squared_error',
+                          cv=5,
+                          verbose=2)
+
+grid_model.fit(X_train,y_train)
+
+grid_model.best_estimator_
+# ElasticNet(alpha=0.1, copy_X=True, fit_intercept=True, l1_ratio=1,
+#            max_iter=1000, normalize=False, positive=False, precompute=False,
+#            random_state=None, selection='cyclic', tol=0.0001, warm_start=False)
+
+grid_model.best_params_
+# {'alpha': 0.1, 'l1_ratio': 1}
+
+
+# Using Best Model From Grid Search
+y_pred = grid_model.predict(X_test)
+
+from sklearn.metrics import mean_squared_error
+
+mean_squared_error(y_test,y_pred) # 2.3873426420874737
+```
+
+
 
 
 ## Algorithms
+
+### Classification vs Regression
+
+**Regression task** - continious value to predict (example: future prices, electricity loads, etc)
+
+**Classification task** - categorical value to predict
+
+<img src="images/regression_vs_classification.jpg">
+
+
+#### Binary classification 
+is the task of classifying the elements of a set into one of two groups (each called class).
+Some of the methods commonly used for binary classification are:
+
+- Decision trees
+- Random forests
+- Bayesian networks
+- Support vector machines
+- Neural networks
+- Logistic regression
+- Probit model
+- Genetic Programming
+- Multi expression programming
+- Linear genetic programming 
+
+https://en.wikipedia.org/wiki/Binary_classification
+
+#### Multiclass classification
+is the problem of classifying instances into one of three or more classes
+
+Several algorithms have been developed based on: 
+
+- neural networks
+- decision trees
+- k-nearest neighbors
+- naive Bayes
+- support vector machines 
+- extreme learning machines 
+
+https://en.wikipedia.org/wiki/Multiclass_classification
+
+
+#### Multi-label classification
+Target can be assigned more than one option
+
+
+### Deep learning vs shallow learning
+
+Shallow learning (algorithms from scikit) for structured data (columns, tabels, etc)
+
+Deep learning (NN) is better for unstructured data (video, audio, etc)
+
+<img src="images/deep_vs_shallow.jpg">
+
+
+### Supervised learning 
+is a category of machine learning that uses labeled datasets to train algorithms to predict outcomes and recognize patterns.
+
+#### Linear Regression
+
+is used to predict the value of a variable based on the value of another variable. The variable you want to predict is called the dependent variable. The variable you are using to predict the other variable's value is called the independent variable.
+
+<img src="images/linear_regression.jpg">
+
+##### Metrics
+
+Mean Absolute Error (MAE) is the mean of the absolute value of the errors:
+
+<img src="images/mean_absolute_error.jpg">
+
+Mean Squared Error (MSE) is the mean of the squared errors:
+
+<img src="images/mean_squared_error.jpg">
+
+Root Mean Squared Error (RMSE) is the square root of the mean of the squared errors:
+
+<img src="images/root_mean_squared_error.jpg">
+
+Comparing these metrics:
+
+- **MAE** is the easiest to understand, because it's the average error.
+- **MSE** is more popular than MAE, because MSE "punishes" larger errors, which tends to be useful in the real world.
+- **RMSE** is even more popular than MSE, because RMSE is interpretable in the "y" units.
+- **RSE**
+
+All of these are loss functions, because we want to minimize them.
+
+**Residual** is the difference between the actual value and the value predicted by the model (y-ŷ) for any given point.
+
+A kernel **density** estimate plot is a method for visualizing the distribution of observations in a dataset, analogous to a histogram. KDE represents the data using a continuous probability density curve in one or more dimensions.
+
+<img src="images/residual_0.jpg" width="290">
+<img src="images/residual_1.jpg" width="290">
+<img src="images/residual_2.jpg" width="290">
+
+<img src="images/lr_residual_invalid.jpg">
+
+Acceptable values of metrics depend on context, so meaning of numbers is relative here.
+
+**Scikit-learn example:**
+```python
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=101)
+
+from sklearn.linear_model import LinearRegression
+
+model = LinearRegression() # creating a model instance
+
+model.fit(X_train, y_train) # training a model
+
+test_predictions = model.predict(X_test) # it returns predicted value in array
+
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+
+# computing of model performance metrics
+MAE = mean_absolute_error(y_test, test_predictions)
+MSE = mean_squared_error(y_test, test_predictions)
+RMSE = np.sqrt(MSE) #import numpy as np
+```
+
+#### Polynomial Regression
+
+is a form of regression analysis in which higher-degree functions of the independent variable, such as squares and cubes, are used to fit the data. It allows for more complex relationships between variables compared to linear regression.
+
+It can help when:
+
+- signal from existing feature is to weak, example:
+
+<img src="images/polynominal_log.jpg" height="330">
+
+- when relationship between the feature(s) and the response variable can’t be best described with a straight line
+
+<img src="images/polynomial-regression-3.png" height="370">
+
+- when two features have meaning only when used together in sync (synergy). Interaction between all pairs of features. In other words permutations of features can show ussefull signal 
+
+
+Creates more features from the original x feature for some d degree of polynomial.
+
+<img src="images/polynominial.jpg">
+
+Then we can call the linear regression model on it, since in reality, we're just treating these new polynomial features `x^2, x^3, ... x^d` as new features. Obviously we need to be careful about choosing the correct value of **d** , the degree of the model. 
+
+The other thing to note here is we have multiple X features, not just a single one as in the formula above, so in reality, the PolynomialFeatures will also take interaction terms into account for example, if an input sample is two dimensional and of the form `[a, b]`, the degree-2 polynomial features are `[1, a, b, a^2, ab, b^2]`.
+
+```python
+from sklearn.preprocessing import PolynomialFeatures
+
+polinominal_converter = PolynomialFeatures(degree=2, include_bias=False)
+poly_features = polinominal_converter.fit_transform(X)
+
+X_train, X_test, y_train, y_test = train_test_split(poly_features, y, test_size=0.3, random_state=42)
+
+from sklearn.linear_model import LinearRegression
+
+model = LinearRegression(fit_intercept=True)
+model.fit(X_train, y_train)
+model.predict(X_test) # result. it returns predicted value in array
+
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+# computing of model performance metrics
+MAE = mean_absolute_error(y_test, test_predictions)
+MSE = mean_squared_error(y_test, test_predictions)
+RMSE = np.sqrt(MSE) #import numpy as np
+
+### **** note ****
+# model.predict() expects output of polinominal_converter.fit_transform(()
+# For example if new data came in stack of calls would look like:
+new_data_item = [[149,22,12]]
+new_data_item_featres = polinominal_converter.transform(new_data_item)
+model.predict(new_data_item_featres)
+```
+
+#### Ridge Regression
+
+is a statistical regularization technique. It corrects for overfitting on training data in machine learning models. Ridge regression—also known as L2 regularization—is one of several types of regularization for linear regression models.
+
+
+
+In machine learning, ridge regression helps reduce overfitting that results from model complexity. Model complexity can be due to:
+
+- A model possessing too many features. Features are the model’s predictors and may also be called “parameters” in machine learning. Online tutorials often recommend keeping the number of features below the number of instances in training data sets. Such is not always be feasible however.
+
+- Features possessing too much weight. Feature weight refers to a given predictor’s effect on the model output. A high feature weight is equivalent to a high-value coefficient.
+
+Simpler models do not intrinsically perform better then complex models. Nevertheless, a high degree of model complexity can inhibit a model’s ability to generalize on new data outside of the training set.
+
+Because ridge regression does not perform feature selection, it cannot reduce model complexity by eliminating features. But if one or more features too heavily affect a model’s output, ridge regression ridge regression can shrink high feature weights (i.e. coefficients) across the model per the L2 penalty term. This reduces the complexity of the model and helps make model predictions less erratically dependent on any one or more feature.
+
+
+![](images/Ridge-regression-cost-function-2.png)
+
+https://www.ibm.com/topics/ridge-regression
+
+
+Example 1:
+
+```python
+from sklearn.linear_model import Ridge
+
+ridge_model = Ridge(alpha=10)
+
+ridge_model.fit(X_train, y_train)
+
+test_predictions = ridge_model.predict(X_test) # the result
+
+
+# computing of model performance metrics
+from sklearn.metrics import mean_absolute_error,mean_squared_error
+MAE = mean_absolute_error(y_test,test_predictions)
+MSE = mean_squared_error(y_test,test_predictions)
+RMSE = np.sqrt(MSE)
+```
+https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html
+
+
+Example 2 (model selects the best of proposed alpha coef):
+```python
+from sklearn.linear_model import RidgeCV
+
+ridge_cv_model = RidgeCV(alphas=(0.1, 1.0, 10.0),scoring='neg_mean_absolute_error') # it should pick the best alpha from given automaticaly
+
+ridge_cv_model.fit(X_train,y_train)
+
+test_predictions = ridge_cv_model.predict(X_test) # the result
+
+# computing of model performance metrics
+from sklearn.metrics import mean_absolute_error,mean_squared_error
+MAE = mean_absolute_error(y_test,test_predictions)
+MSE = mean_squared_error(y_test,test_predictions)
+RMSE = np.sqrt(MSE)
+```
+
+https://scikit-learn.org/stable/modules/linear_model.html#ridge-complexity
+
+
+#### Lasso
+
+is a linear model that estimates sparse coefficients. It is useful in some contexts due to its tendency to prefer solutions with fewer non-zero coefficients, effectively reducing the number of features upon which the given solution is dependent. For this reason, Lasso and its variants are fundamental to the field of compressed sensing. Under certain conditions, it can recover the exact set of non-zero coefficients.
+
+Lasso regression is ideal for predictive problems; its ability to perform automatic variable selection can simplify models and enhance prediction accuracy. That said, ridge regression may outperform lasso regression due to the amount of bias that lasso regression introduces by reducing coefficients towards zero. It also has its limitations with correlated features in the data as it arbitrarily chooses a feature to include in the model.
+
+```python
+from sklearn.linear_model import LassoCV
+
+lasso_cv_model = LassoCV(eps=0.1,n_alphas=100,cv=5)
+lasso_cv_model.fit(X_train,y_train)
+test_predictions = lasso_cv_model.predict(X_test)# the result
+
+# computing of model performance metrics
+from sklearn.metrics import mean_absolute_error,mean_squared_error
+MAE = mean_absolute_error(y_test,test_predictions)
+MSE = mean_squared_error(y_test,test_predictions)
+RMSE = np.sqrt(MSE)
+```
+
+https://scikit-learn.org/stable/modules/linear_model.html#lasso
+
+https://www.ibm.com/topics/lasso-regression
+
+
+#### Elastic Net
+
+combines the penalties of ridge regression and lasso in an attempt to get the best of both.
+
+ElasticNet is a linear regression model trained with both l1 and l2-norm regularization of the coefficients. This combination allows for learning a sparse model where few of the weights are non-zero like Lasso, while still maintaining the regularization properties of Ridge. We control the convex combination of l1 and l2 using the l1_ratio parameter.
+
+Elastic-net is useful when there are multiple features that are correlated with one another. Lasso is likely to pick one of these at random, while elastic-net is likely to pick both.
+
+A practical advantage of trading-off between Lasso and Ridge is that it allows Elastic-Net to inherit some of Ridge’s stability under rotation.
+
+```python
+from sklearn.linear_model import ElasticNetCV
+
+elastic_model = ElasticNetCV(l1_ratio=[.1, .5, .7,.9, .95, .99, 1],tol=0.01) 
+# l1_ratio: how much it is lasso?  0 = 100% ridge, 1 = 100% lasso
+
+elastic_model.fit(X_train,y_train)
+test_predictions = elastic_model.predict(X_test)# the result
+
+# computing of model performance metrics
+from sklearn.metrics import mean_absolute_error,mean_squared_error
+MAE = mean_absolute_error(y_test,test_predictions)
+MSE = mean_squared_error(y_test,test_predictions)
+RMSE = np.sqrt(MSE)
+
+```
+
+https://scikit-learn.org/stable/modules/linear_model.html#elastic-net
+
+
+#### Logistic regression
+
+widely used for binary classification tasks, such as identifying whether an email is spam or not and diagnosing diseases by assessing the presence or absence of specific conditions based on patient test results. This approach utilizes the logistic (or sigmoid) function to transform a linear combination of input features into a probability value ranging between 0 and 1. This probability indicates the likelihood that a given input corresponds to one of two predefined categories. The essential mechanism of logistic regression is grounded in the logistic function's ability to model the probability of binary outcomes accurately. With its distinctive S-shaped curve, the logistic function effectively maps any real-valued number to a value within the 0 to 1 interval. This feature renders it particularly suitable for binary classification tasks, such as sorting emails into "spam" or "not spam". By calculating the probability that the dependent variable will be categorized into a specific group, logistic regression provides a probabilistic framework that supports informed decision-making.
+
+<img src="images/Exam_pass_logistic_curve.svg" height="370">
+
+
+Binary problem example:
+
+```python
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=101)
+scaler = StandardScaler()
+scaled_X_train = scaler.fit_transform(X_train)
+scaled_X_test = scaler.transform(X_test)
+
+from sklearn.linear_model import LogisticRegression
+
+log_model = LogisticRegression()
+log_model.fit(scaled_X_train,y_train)
+
+y_pred = log_model.predict(scaled_X_test)
+
+from sklearn.metrics import accuracy_score,confusion_matrix,classification_report,plot_confusion_matrix
+accuracy_score(y_test,y_pred)
+confusion_matrix(y_test,y_pred)
+print(classification_report(y_test,y_pred))
+```
+
+Multiclass problem example:
+
+```python
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=101)
+scaler = StandardScaler()
+scaled_X_train = scaler.fit_transform(X_train)
+scaled_X_test = scaler.transform(X_test)
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import GridSearchCV
+
+# Depending on warnings you may need to adjust max iterations allowed 
+# Or experiment with different solvers
+log_model = LogisticRegression(solver='saga',multi_class="ovr",max_iter=5000)
+
+# Penalty Type
+penalty = ['l1', 'l2']
+
+# Use logarithmically spaced C values (recommended in official docs)
+C = np.logspace(0, 4, 10)
+
+grid_model = GridSearchCV(log_model,param_grid={'C':C,'penalty':penalty})
+grid_model.fit(scaled_X_train,y_train)
+
+from sklearn.metrics import accuracy_score,confusion_matrix,classification_report,plot_confusion_matrix
+
+y_pred = grid_model.predict(scaled_X_test)
+
+from sklearn.metrics import accuracy_score,confusion_matrix,classification_report,plot_confusion_matrix
+accuracy_score(y_test,y_pred)
+confusion_matrix(y_test,y_pred)
+print(classification_report(y_test,y_pred))
+```
+
+https://en.wikipedia.org/wiki/Logistic_regression
+
+https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html#sklearn.linear_model.LogisticRegression
+
+https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+
+
+
+
+### Unsupervised learning 
+
+ in artificial intelligence is a type of machine learning that learns from data without human supervision.
 
 ### KNN algorithm
 
@@ -176,6 +784,28 @@ The activation function decides whether a neuron should be activated or not by c
 - https://github.com/isidzukuri/nn_discovery
 
 
+#### Optimizer
+
+Tells your model how to update its internal parameters to best lower the loss.
+
+https://www.learnpytorch.io/01_pytorch_workflow/
+
+#### How to pick loss/optimizer function?
+
+Table of various loss functions and optimizers, there are more but these some common ones:
+
+<img src="images/loss_optimizer_table.jpg">
+
+https://pytorch.org/docs/stable/nn.html#loss-functions
+
+https://pytorch.org/docs/stable/optim.html
+
+
+#### learning rate
+
+lr is the learning rate you'd like the optimizer to update the parameters at, higher means the optimizer will try larger updates (these can sometimes be too large and the optimizer will fail to work), lower means the optimizer will try smaller updates (these can sometimes be too small and the optimizer will take too long to find the ideal values). The learning rate is considered a hyperparameter (because it's set by a machine learning engineer). Common starting values for the learning rate are 0.01, 0.001, 0.0001, however, these can also be adjusted over time
+
+
 #### Raw logits -> Predictions probabilities -> Predictions labels
 
 model outputs are going to be **logits**
@@ -215,6 +845,15 @@ Backpropagation is a gradient estimation method used to train neural network mod
 https://en.wikipedia.org/wiki/Backpropagation
 
 
+#### Regularization in Neural Networks 
+- **Dropout** regularizes neural networks by randomly dropping out nodes, along with their input and output connections, from the network during training. Dropout trains several variations of a fixed-sized architecture, with each variation having different randomized nodes left out of the architecture.
+- **Weight decay**
+- **Learning rate warmup**
+- **Learning rate decay**
+- **Gradient clipping**
+- **Label smoothing**
+
+
 #### Convolutional neural networks (CNN)
 is the extended version of artificial neural networks (ANN) which is predominantly used to extract the feature from the grid-like matrix dataset. For example visual datasets like images or videos where data patterns play an extensive role.
 
@@ -227,6 +866,13 @@ Practical Applications of CNNs:
 - Optical flow (task of predicting movement between two images)
 
 **CNN explainer** https://poloclub.github.io/cnn-explainer/
+
+
+#### Other NN architectures
+
+[Visualizing A Neural Machine Translation Model (Mechanics of Seq2seq Models With Attention)](https://jalammar.github.io/visualizing-neural-machine-translation-mechanics-of-seq2seq-models-with-attention/)
+
+[The Illustrated Transformer](https://jalammar.github.io/illustrated-transformer/)
 
 
 #### Optical Flow
@@ -276,12 +922,17 @@ But if you've got unlimited compute power, as The Bitter Lesson states, you'd li
 Understanding this performance vs. speed vs. size tradeoff will come with time and practice.
 
 
+#### Recipe for training NN
+
+http://karpathy.github.io/2019/04/25/recipe/
+
+
 
 ### More algorithms
 
 - AWS built-in algorithms or pretrained models: https://docs.aws.amazon.com/sagemaker/latest/dg/algos.html
 
-- https://scikit-learn.org/stable/user_guide.html
+- https://scikit-learn.org/stable/user_guide.
 
 
 ### machine learning components 
@@ -289,44 +940,11 @@ Understanding this performance vs. speed vs. size tradeoff will come with time a
 https://paperswithcode.com/methods
 
 
-### Binary classification 
-is the task of classifying the elements of a set into one of two groups (each called class).
-Some of the methods commonly used for binary classification are:
-
-- Decision trees
-- Random forests
-- Bayesian networks
-- Support vector machines
-- Neural networks
-- Logistic regression
-- Probit model
-- Genetic Programming
-- Multi expression programming
-- Linear genetic programming 
-
-https://en.wikipedia.org/wiki/Binary_classification
-
-### Multiclass classification
-is the problem of classifying instances into one of three or more classes
-
-Several algorithms have been developed based on: 
-- neural networks
-- decision trees
-- k-nearest neighbors
-- naive Bayes
-- support vector machines 
-- extreme learning machines 
-
-https://en.wikipedia.org/wiki/Multiclass_classification
-
-
-### Multi-label classification
-Target can be assigned more than one option
 
 
 ## Regularization
 
- is a set of methods for reducing overfitting in machine learning models. Typically, regularization trades a marginal decrease in training accuracy for an increase in generalizability.
+ is a set of methods for reducing overfitting in machine learning models. Typically, regularization trades a marginal decrease in training accuracy for an increase in generalizability. Prevents overfitting.
  
 <img src="images/under_over_fit.png">
 
@@ -354,10 +972,6 @@ https://pytorch.org/blog/how-to-train-state-of-the-art-models-using-torchvision-
 - **Early stopping** is perhaps the most readily implemented regularization technique. In short, it limits the number of iterations during model training. Here, a model continuously passes through the training data, stopping once there is no improvement (and perhaps even deterioration) in training and validation accuracy. The goal is to train a model until it has reached the lowest possible training error preceding a plateau or increase in validation error.
 
 <img src="images/early_stop.png">
-
-#### Neural networks 
-- **Dropout** regularizes neural networks by randomly dropping out nodes, along with their input and output connections, from the network during training. Dropout trains several variations of a fixed-sized architecture, with each variation having different randomized nodes left out of the architecture.
-- **Weight decay**
 
 
 ## Confusion matrix
@@ -438,6 +1052,8 @@ https://www.aiacceleratorinstitute.com/evaluating-machine-learning-models-metric
 
 https://developers.google.com/machine-learning/crash-course/classification/precision-and-recall
 
+https://scikit-learn.org/stable/modules/model_evaluation.html
+
 
 ## Ensemble methods
 
@@ -454,6 +1070,239 @@ https://en.wikipedia.org/wiki/Ensemble_learning
 
 https://www.geeksforgeeks.org/a-comprehensive-guide-to-ensemble-learning/
 
+
+## Training data
+
+### Sampling 
+
+in ML involves selecting a subset of data from a larger dataset, ensuring that the smaller dataset accurately represents the larger one.
+
+
+Types of sampling:
+
+
+- **Random Sampling**: Random sampling is the simplest form of sampling in machine learning. It involves selecting data points randomly from a dataset with no specific pattern. This method assumes that every data point in the dataset has an equal chance of being selected. 
+
+- **Non probability sampling**(convinience, snowball, judgment, quota) is when the selection of data is not basd on ny probability criteria.
+
+- **Simple random sampling**: you give all samples in population equal probabilities of being selected. For example, you randomly select 10% of the population, giving all members of this population an equal chance 10% of being selected.
+
+- **Stratified sampling**: you can first divide popultion into th groups and sample from each group separetly.
+
+- **Weighed sampling**: each sample is given a weight, which determines the probabiliti of it beign selected. For example you have three samples A, B, C, and want them to be selected with probability 50%, 30%, 20%, you can give them weights 0.5, 0.3, 0.2.
+
+- **Reservoir sampling**: is used for randomly sampling k items from a stream of data of unknown size, in a single pass.
+
+- **Importance sampling**
+
+
+### Resampling
+
+Data-level methods modify the distribution of the training data to reduce the level of imbalance to make it easier for the model to learn.
+
+<img src="images/resampling.jpg">
+
+["Designing Machine Learning Systems" by Chip Huyen](https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/)
+
+### Cost-sensitive learning 
+is a subfield of machine learning that takes the costs of prediction errors (and potentially other costs) into account when training a machine learning model. It is a field of study that is closely related to the field of imbalanced learning that is concerned with classification on datasets with a skewed class distribution.
+
+This method diverges from traditional approaches by introducing a cost matrix, explicitly specifying the penalties or benefits for each type of prediction error. The inherent difficulty which cost-sensitive machine learning tackles is that minimizing different kinds of classification errors is a multi-objective optimization problem. 
+
+<img src="images/cost_sensitive_learning.jpg">
+
+
+### Focal Loss
+
+function addresses class imbalance during training in tasks like object detection. Focal loss applies a modulating term to the cross entropy loss in order to focus learning on hard misclassified examples. It is a dynamically scaled cross entropy loss, where the scaling factor decays to zero as confidence in the correct class increases. Intuitively, this scaling factor can automatically down-weight the contribution of easy examples during training and rapidly focus the model on hard examples. 
+
+https://paperswithcode.com/method/focal-loss
+
+
+### Data lineage 
+
+is the story behind the data. It tracks the data from its creation point to the points of consumption. This pipeline of dataflow involves input and output points, transformation and modeling processes the data has undergone, record analysis, visualizations, and several other processes which are constantly tracked and updated.
+
+The objective of data lineage is to observe the entire lifecycle of data such that the pipeline can be upgraded and leveraged for optimal performance.
+
+A visual representation can provide transparency to the flow of data from its source systems through transformation, processing, and aggregation steps and into analysis, allowing data engineers to drill down on specific details or check versions and changes over time.
+
+
+["Designing Machine Learning Systems" by Chip Huyen](https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/)
+
+https://www.linkedin.com/pulse/types-sampling-machine-learning-chirag-subramanian-hnsoc/
+
+
+## Feature engeneering
+
+### Dealing with Outliers
+
+<img src="images/outlier.gif" height='420'>
+
+
+In statistics, an outlier is a data point that differs significantly from other observations.An outlier may be due to variability in the measurement or it may indicate experimental error; the latter are sometimes excluded from the data set. An outlier can cause serious problems in statistical analyses.
+
+Remember that even if a data point is an outlier, its still a data point! Carefully consider your data, its sources, and your goals whenver deciding to remove an outlier. Each case is different!
+
+How to detect:
+
+- visualization tools(Box plot, Scatter plot...)
+
+- mathematical functions(Z-Score, IQR score...)
+
+How to solve:
+
+- correct
+
+- remove
+
+
+[scikit-learn course, Section 11: Feature Engineering and Data Preparation](https://www.udemy.com/course/python-for-machine-learning-data-science-masterclass/)
+
+https://en.wikipedia.org/wiki/Outlier
+
+https://www.itl.nist.gov/div898/handbook/prc/section1/prc16.htm
+
+https://towardsdatascience.com/ways-to-detect-and-remove-the-outliers-404d16608dba
+
+
+### Dealing with Missing Data
+
+#### Removing Features or Removing Rows
+
+If only a few rows relative to the size of your dataset are missing some values, then it might just be a good idea to drop those rows. What does this cost you in terms of performace? It essentialy removes potential training/testing data, but if its only a few rows, its unlikely to change performance.
+
+Sometimes it is a good idea to remove a feature entirely if it has too many null values. However, you should carefully consider why it has so many null values, in certain situations null could just be used as a separate category.
+
+Take for example a feature column for the number of cars that can fit into a garage. Perhaps if there is no garage then there is a null value, instead of a zero. It probably makes more sense to quickly fill the null values in this case with a zero instead of a null. Only you can decide based off your domain expertise and knowledge of the data set!
+
+#### Filling in Data or Dropping Data?
+Choose some threshold where we decide it is ok to drop a row if its missing some data (instead of attempting to fill in that missing data point). We will choose 1% as our threshold. This means if less than 1% of the rows are missing this feature, we will consider just dropping that row, instead of dealing with the feature itself. There is no right answer here, just use common sense and your domain knowledge of the dataset, obviously you don't want to drop a very high threshold like 50% , you should also explore correlation to the dataset, maybe it makes sense to drop the feature instead.
+
+Sometimes you may want to take the approach that above a certain missing percentage threshold, you will simply remove the feature from all the data. For example if 99% of rows are missing a feature, it will not be predictive, since almost all the data does not have any value for it.
+
+
+#### Imputation of Missing Data
+
+To impute missing data, we need to decide what other filled in (no NaN values) feature most probably relates and is correlated with the missing feature data. Example:
+
+```python
+# Neighborhood: Physical locations within Ames city limits
+# LotFrontage: Linear feet of street connected to property
+# We will operate under the assumption that the Lot Frontage is related to what neighborhood a house is in.
+
+df['Lot Frontage'] = df.groupby('Neighborhood')['Lot Frontage'].transform(lambda val: val.fillna(val.mean()))
+```
+
+https://scikit-learn.org/stable/modules/impute.html
+
+
+### Dealing with Categorical Data
+
+Many machine learning models can not deal with categorical data set as strings. For example linear regression can not apply a a Beta Coefficent to colors like "red" or "blue". Instead we need to convert these categories into "dummy" variables, otherwise known as "one-hot" encoding.
+
+how to solve:
+
+- One Hot Encoding
+
+- Ordinal Encoding
+
+- Frequency Encoding
+
+- Target Encoding
+
+- Probability Ratio Encoding
+
+- Weight of Evidence Encoder
+
+- Binning
+
+
+https://medium.com/geekculture/feature-engineering-for-categorical-data-a77a04b3308
+
+https://www.kaggle.com/code/kenjee/categorical-feature-engineering-section-7-1
+
+
+[scikit-learn course, Section 11: Feature Engineering and Data Preparation](https://www.udemy.com/course/python-for-machine-learning-data-science-masterclass/)
+
+### Scaling
+
+is a technique to standardize the independent features present in the data in a fixed range.
+
+It is performed during the data pre-processing to handle highly varying magnitudes or values or units. If feature scaling is not done, then a machine learning algorithm tends to weigh greater values, higher and consider smaller values as the lower values, regardless of the unit of the values.
+
+Any mathematical transform or technique that shifts the range of a label and/or feature value.
+
+Common forms of scaling useful in Machine Learning include:
+
+- linear scaling, which typically uses a combination of subtraction and division to replace the original value with a number between -1 and +1 or between 0 and 1.
+
+- logarithmic scaling, which replaces the original value with its logarithm.
+
+- Z-score normalization, which replaces the original value with a floating-point value representing the number of standard deviations from that feature's mean.
+
+
+<img src="images/normalizations-at-a-glance-v2.svg">
+
+<img src="images/norm-log-scaling-movie-ratings.svg">
+
+
+scikit-learn code:
+```python
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+scaler.fit(X_train)
+
+X_train_scaled = scaler.transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+```
+
+
+https://www.geeksforgeeks.org/ml-feature-scaling-part-2/
+https://developers.google.com/machine-learning/glossary#scaling
+
+
+### Feature crossing
+
+is a technique to combine two or more features to generate new features.
+
+<img src="images/feature_crossing.jpg">
+
+
+### Data Leakage
+
+occurs when information from outside the training dataset is unintentionally utilized during the model creation process. This leakage can have detrimental effects on the model's predictions and its ability to generalize unseen data, resulting in unreliable and inaccurate predictions.
+
+Data leakage (or leakage) happens when your training data contains information about the target, but similar data will not be available when the model is used for prediction. This leads to high performance on the training set (and possibly even the validation data), but the model will perform poorly in production.
+
+In other words, leakage causes a model to look accurate until you start making decisions with the model, and then the model becomes very inaccurate.
+
+There are two main types of leakage: target leakage and train-test contamination.
+
+https://www.kaggle.com/code/alexisbcook/data-leakage
+
+
+### Feature importance
+
+is a step in building a machine learning model that involves calculating the score for all input features in a model to establish the importance of each feature in the decision-making process. The higher the score for a feature, the larger effect it has on the model to predict a certain variable.
+
+There are many method to measure feature importance. For example you can use SHAP.
+
+<img src="images/shap_1.jpg">
+<img src="images/shap_2.jpg">
+<img src="images/shap_header.svg">
+
+
+https://www.kaggle.com/code/wrosinski/shap-feature-importance-with-feature-engineering
+
+https://shap.readthedocs.io/en/latest/
+
+
+["Designing Machine Learning Systems" by Chip Huyen](https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/)
+
+
+
 ## ML infrastructure
 
 Examples:
@@ -467,6 +1316,30 @@ Examples:
 Example:
 
 <img src="images/ml_lifecycle.jpg">
+
+## MLOps
+
+### Infrastructure
+
+Layers:
+
+- **Storage and compute**: the storage layer is where data is collected and stored. The compute layer provides compute to run your ML workloads such as training a model, computing features, generating features, etc.
+
+- **Resource management**: tools to schedule and orchestrate your workloads to make the most out of your available resources. Examples: Airflow, Kubeflow, Metaflow.
+
+- **ML platform**: tools for aid the development of ML applications uch as mdel stores, feature stores, monitoring tools. Examples: SageMaker, MLflow
+
+- **Development environment**
+
+<img src="images/infrastructure_1.jpg">
+
+
+#### Development environment
+
+[Ppaermill](https://github.com/nteract/papermill) - is a tool for parameterizing, executing, and analyzing Jupyter Notebooks
+
+[MLFlow + Papermill](https://eugeneyan.com/writing/experimentation-workflow-with-jupyter-papermill-mlflow/)
+
 
 
 ## Running ML on edge an mobile devices
@@ -524,6 +1397,18 @@ https://aws.amazon.com/sagemaker/neo/
 https://docs.aws.amazon.com/sagemaker/latest/dg/neo-edge-devices.html
 
 
+## Running ML in browsers
+
+### Compiling to JS
+
+- [TensorFlow.js](https://www.tensorflow.org/js)
+- [brain.js](https://github.com/BrainJS/brain.js)
+- [Synaptic](https://github.com/cazala/synaptic)
+
+### Compiling to WASM
+
+After model is built in scikit-learn, PyTorch, TensorFlow, or whatever other framework you can compile model to WASM. You get back executable file that you can just use with javascript.
+
 
 ## Frameworks
 
@@ -553,6 +1438,163 @@ https://en.wikipedia.org/wiki/Comparison_of_deep_learning_software
 
 **TensorBoard** provides the visualization and tooling needed for machine learning experimentation. Experiment tracking, performance plots, etc. https://www.tensorflow.org/tensorboard
 
+**Gradio** -  is the fastest way to demo your machine learning model with a friendly web interface https://www.gradio.app/
+
+**alibi-detect** - The package aims to cover both online and offline detectors for tabular data, text, images and time series. Both TensorFlow and PyTorch backends are supported for drift detection. https://github.com/SeldonIO/alibi-detect?tab=readme-ov-file
+
+**great_expectations** - data validation https://github.com/great-expectations/great_expectations
+
+
+## Performance
+
+### Batching
+
+<img src="images/batch_queries.jpg">
+
+### Quantization
+
+Quantization is a technique to reduce the computational and memory costs of running inference by representing the weights and activations with low-precision data types like 8-bit integer (int8) instead of the usual 32-bit floating point (float32).
+
+Reducing the number of bits means the resulting model requires less memory storage, consumes less energy (in theory), and operations like matrix multiplication can be performed much faster with integer arithmetic. It also allows to run models on embedded devices, which sometimes only support integer data types.
+
+https://huggingface.co/docs/optimum/concept_guides/quantization
+
+
+
+### Knowledge Distillation
+
+Knowledge distillation is a technique that enables knowledge transfer from large, computationally expensive models to smaller ones without losing validity. This allows for deployment on less powerful hardware, making evaluation faster and more efficient.
+
+<img src="images/distillation_output_loss.png">
+
+https://pytorch.org/tutorials/beginner/knowledge_distillation_tutorial.html
+
+
+### Using ML to optimize ML models
+
+Apache TVM is a compiler stack for deep learning systems. It is designed to close the gap between the productivity-focused deep learning frameworks, and the performance- and efficiency-focused hardware backends. TVM works with deep learning frameworks to provide end to end compilation to different backends.
+
+AutoTVM offers a way to tune models and operators by providing a template schedule, and searcing the parameter space defined by the template. These how-tos demonstrate how to write template schedules and optimize them for a variety of different hardware platforms. [Read more](https://daobook.github.io/tvm/docs/how_to/tune_with_autotvm/index.html)
+
+
+<img src="images/ml_tune_ml.jpg">
+
+
+https://daobook.github.io/tvm/docs/how_to/tune_with_autotvm/index.html
+
+https://tvm.apache.org/docs/reference/api/python/autotvm.html
+
+https://github.com/apache/tvm
+
+["Designing Machine Learning Systems" by Chip Huyen](https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/)
+
+
+## Data distribution shifts and monitoring
+
+### Data drift 
+is a change in the statistical properties and characteristics of the input data. It occurs when a machine learning model is in production, as the data it encounters deviates from the data the model was initially trained on or earlier production data. 
+
+This shift in input data distribution can lead to a decline in the model's performance. The reason is, when you create a machine learning model, you can expect it to perform well on data similar to the data used to train it. However, it might struggle to make accurate predictions or decisions if the data keeps changing and the model cannot generalize beyond what it has seen in training.
+
+In simple terms, data drift is a change in the model inputs the model is not trained to handle. Detecting and addressing data drift is vital to maintaining ML model reliability in dynamic settings.
+
+
+https://www.evidentlyai.com/ml-in-production/data-drift
+
+https://github.com/SeldonIO/alibi-detect?tab=readme-ov-file
+
+
+### Data validation
+
+Data validation is a term used to describe the process of checking the accuracy and quality of source data to ensure accurate output. Implementing data validation processes for a ML model helps to mitigate “garbage in = garbage out” scenarios, where poor quality data produces a poorly functioning model.
+
+https://github.com/great-expectations/great_expectations
+
+https://github.com/awslabs/deequ
+
+
+
+## Continual learning
+
+training paradigm where a model is updated with some amount of incomming samples or baches of samples(1+...512+...1024+....) with a periodicity (immediately, every minute, every 5 minutes, very hour, once month, once a year...). 
+
+The updated model shouldnt be deployed until its been evalueated. This means that you shouldnt make chanches to existing model directly. Instead, you create replica and update this replica with new data and only replace existing model with updated replica if updated replica proves to be better. The existing model is called the champion model, and the updated replica, the chalanger.
+
+<img src="images/continual_learning.jpg" height="500">
+
+### Stateless Retraining vs Statefull Training
+
+**Stateless Retraining** - the model is trained from scratch each time.
+
+**Statefull Training** - the model continues learnig on new data.
+
+<img src="images/stateless_vs_statfull.jpg" height="385">
+
+### Test in production
+
+- **Shadow deployment**: trafic routed to champion and chalenger, but only champion is serving clients
+
+- **A/B testing**: purpose is usually to see users' response (In a way, how much they like it). But you know that the new version works. So, you actually send randomly both versions of the application to all of them. It can be 50-50, 80-20, 90-10, anything. You might want to see which version attracts more clients and stuff like that.
+
+- **Canary release** is more focused on how well works the new feature. Or if it actually works. It usually will be 90-10, 80-20, A >> B. Never 50-50, because if it goes wrong, you don't want half of your users to have a bad experience. So you are not positive if the new version is going to work as expected.
+
+- **Interleaving experiments**
+
+<img src="images/interleaving_experiments_3.jpg">
+<img src="images/interleaving_experiments.jpg" height="480">
+<img src="images/interleaving_experiments_2.jpg">
+
+
+["Designing Machine Learning Systems" by Chip Huyen](https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/)
+
+https://dl.acm.org/doi/fullHtml/10.1145/3543873.3587572
+
+
+
+## Glossary
+
+**Embedding** - learnable representation (start with random numbers and improve over time)
+
+**Multilayer perceptron** -  (MLP) is a name for a modern feedforward artificial neural network, consisting of fully connected neurons with a nonlinear activation function, organized in at least three layers, notable for being able to distinguish data that is not linearly separable.[1]
+
+Modern feedforward networks are trained using the backpropagation method[2][3][4][5][6] and are colloquially referred to as the "vanilla" neural networks.[7]
+
+MLPs grew out of an effort to improve single-layer perceptrons, which could only distinguish linearly separable data. A perceptron traditionally used a Heaviside step function as its nonlinear activation function. However, the backpropagation algorithm requires that modern MLPs use continuous activation functions such as sigmoid or ReLU.
+
+https://en.wikipedia.org/wiki/Multilayer_perceptron
+
+
+**Residual Connection** - are a type of skip-connection that learn residual functions with reference to the layer inputs, instead of learning unreferenced functions. 
+
+<img src="images/residual_connection.png"  height="200">
+
+**Learning rate warmup** - start with small learning rate and warmup to sertain value.https://paperswithcode.com/method/linear-warmup
+
+<img src="images/lr_warmup.png" height="250">
+
+**Learning rate decay** - turn down lr closer to better results
+
+**Gragient clipping** - cut some gradients https://paperswithcode.com/method/gradient-clipping
+
+**Multi-head Attention** is a module for attention mechanisms which runs through an attention mechanism several times in parallel. The independent attention outputs are then concatenated and linearly transformed into the expected dimension. Intuitively, multiple attention heads allows for attending to parts of the sequence differently (e.g. longer-term dependencies versus shorter-term dependencies). https://paperswithcode.com/method/multi-head-attention
+
+<img src="images/multi-head-attention.png" height="250">
+
+
+**Cardinality** is a mathematics term that refers to the number of unique elements in a set. It can be categorized into high and low cardinality. High cardinality is present when a column or row in a database has many distinct values, whereas low cardinality involves many repeated values.
+
+
+<img src="images/cardinality.png" height="350">
+
+https://www.splunk.com/en_us/blog/learn/cardinality-metrics-monitoring-observability.html
+
+
+
+## Math symbols
+
+∈ - elements
+
+R - real numbers
 
 ## Useful links
 
@@ -578,6 +1620,8 @@ Datasets, models:
 
 - https://www.image-net.org/ [images]
 
+- https://github.com/lucidrains?tab=repositories
+
 
 
 
@@ -586,6 +1630,8 @@ Courses:
 - https://www.udemy.com/course/aws-machine-learning/
 
 - https://www.udemy.com/course/pytorch-for-deep-learning/
+
+- https://www.udemy.com/course/python-for-machine-learning-data-science-masterclass/
 
 - https://www.learnpytorch.io/
 
@@ -599,12 +1645,42 @@ Articles:
 
 - https://arxiv.org/
 
+- https://eugeneyan.com/
+
+- https://jalammar.github.io/
+
+
+Books:
+
+- ["Designing Machine Learning Systems" by Chip Huyen](https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/)
+
+
+Cheatsheets:
+
+- [ML model selection #1](pdf/ML+Cheat+Sheet_2.pdf)
+
+- [ML model selection #2](pdf/Model_Selection_in_Machine_Learning_for_Different_Models.avif)
+
+- [ML model selection #3](https://docs.aws.amazon.com/sagemaker/latest/dg/algos.html)
 
 Online NN builder:
 
 - https://playground.tensorflow.org/
 
+- https://poloclub.github.io/transformer-explainer/
+
 
 Performance:
 
 - https://horace.io/brrr_intro.html
+
+
+Social media:
+
+- https://x.com/_akhaliq
+
+- https://x.com/NeurIPSConf
+
+- https://x.com/iclr_conf
+
+- https://x.com/icmlconf

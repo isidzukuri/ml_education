@@ -1108,17 +1108,530 @@ body .markdown-body
 <p><strong>Interpreting Loss Curves</strong>: <a href="https://developers.google.com/machine-learning/testing-debugging/metrics/interpretic">https://developers.google.com/machine-learning/testing-debugging/metrics/interpretic</a></p>
 <p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/04-loss-curves-overfitting-underfitting-ideal.jpg"></p>
 <p><a href="https://en.wikipedia.org/wiki/Loss_function">https://en.wikipedia.org/wiki/Loss_function</a></p>
-<h3 id="optimizer">Optimizer<a class="headerlink" href="#optimizer" title="Permanent link"></a></h3>
-<p>Tells your model how to update its internal parameters to best lower the loss.</p>
-<p><a href="https://www.learnpytorch.io/01_pytorch_workflow/">https://www.learnpytorch.io/01_pytorch_workflow/</a></p>
-<h3 id="how-to-pick-lossoptimizer-function">How to pick loss/optimizer function?<a class="headerlink" href="#how-to-pick-lossoptimizer-function" title="Permanent link"></a></h3>
-<p>Table of various loss functions and optimizers, there are more but these some common ones:</p>
-<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/loss_optimizer_table.jpg"></p>
-<p><a href="https://pytorch.org/docs/stable/nn.html#loss-functions">https://pytorch.org/docs/stable/nn.html#loss-functions</a></p>
-<p><a href="https://pytorch.org/docs/stable/optim.html">https://pytorch.org/docs/stable/optim.html</a></p>
-<h4 id="learning-rate">learning rate<a class="headerlink" href="#learning-rate" title="Permanent link"></a></h4>
-<p>lr is the learning rate you&rsquo;d like the optimizer to update the parameters at, higher means the optimizer will try larger updates (these can sometimes be too large and the optimizer will fail to work), lower means the optimizer will try smaller updates (these can sometimes be too small and the optimizer will take too long to find the ideal values). The learning rate is considered a hyperparameter (because it&rsquo;s set by a machine learning engineer). Common starting values for the learning rate are 0.01, 0.001, 0.0001, however, these can also be adjusted over time</p>
+<h3 id="traintest-split-procedure">Train/Test Split Procedure<a class="headerlink" href="#traintest-split-procedure" title="Permanent link"></a></h3>
+<ol>
+<li>Clean and adjust data as necessary for X and y</li>
+<li>Split Data in Train/Test for both X and y</li>
+<li>Fit/Train Scaler on Training X Data</li>
+<li>Scale X Test Data</li>
+<li>Create Model</li>
+<li>Fit/Train Model on X Train Data</li>
+<li>Evaluate Model on X Test Data (by creating predictions and comparing to Y_test)</li>
+<li>Adjust Parameters as Necessary and repeat steps 6 and 7</li>
+</ol>
+<div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">&quot;../DATA/Advertising.csv&quot;</span><span class="p">)</span>
+
+<span class="c1">## 1. CREATE X and y</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s">&#39;sales&#39;</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">&#39;sales&#39;</span><span class="p">]</span>
+
+<span class="c1"># 2. TRAIN TEST SPLIT</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span>
+
+<span class="c1"># 3. TRAIN SCALER</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="n">scaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+<span class="n">scaler</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+
+<span class="c1"># 4 SCALE DATA</span>
+<span class="n">X_train</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">X_test</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">Ridge</span>
+
+<span class="c1"># 5. Poor Alpha Choice on purpose!</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">Ridge</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="c1"># 6. Fit/Train Model on X Train Data</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
+
+<span class="c1"># 7. evaluation</span>
+<span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_squared_error</span>
+
+<span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">y_pred</span><span class="p">)</span> <span class="c1"># 7.34177578903413</span>
+
+<span class="c1"># 8. Adjust Parameters and Re-evaluate</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">Ridge</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
+<span class="n">y_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+
+<span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">y_pred</span><span class="p">)</span> <span class="c1"># 2.319021579428752</span>
+</pre></div>
+
+<h3 id="trainvalidationtest-split-procedure">Train/Validation/Test Split Procedure<a class="headerlink" href="#trainvalidationtest-split-procedure" title="Permanent link"></a></h3>
+<p>This is often also called a &ldquo;hold-out&rdquo; set, since you should not adjust parameters based on the final test set, but instead use it only for reporting final expected performance.</p>
+<ol>
+<li>Clean and adjust data as necessary for X and y</li>
+<li>Split Data in Train/Validation/Test for both X and y</li>
+<li>Fit/Train Scaler on Training X Data</li>
+<li>Scale X Eval Data</li>
+<li>Create Model</li>
+<li>Fit/Train Model on X Train Data</li>
+<li>Evaluate Model on X Evaluation Data (by creating predictions and comparing to Y_eval)</li>
+<li>Adjust Parameters as Necessary and repeat steps 6 and 7</li>
+<li>Get final metrics on Test set (not allowed to go back and adjust after this!)</li>
+</ol>
+<div class="highlight"><pre><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">&quot;../DATA/Advertising.csv&quot;</span><span class="p">)</span>
+
+<span class="c1">## 1. CREATE X and y</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s">&#39;sales&#39;</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">&#39;sales&#39;</span><span class="p">]</span>
+
+<span class="c1">######################################################################</span>
+<span class="c1">#### SPLIT TWICE! Here we create TRAIN | VALIDATION | TEST  #########</span>
+<span class="c1">####################################################################</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+
+<span class="c1"># 70% of data is training data, set aside other 30%</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_OTHER</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_OTHER</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span>
+
+<span class="c1"># Remaining 30% is split into evaluation and test sets</span>
+<span class="c1"># Each is 15% of the original data size</span>
+<span class="n">X_eval</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_eval</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X_OTHER</span><span class="p">,</span> <span class="n">y_OTHER</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span>
+
+<span class="c1"># SCALE DATA</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="n">scaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+<span class="n">scaler</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">X_train</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">X_eval</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_eval</span><span class="p">)</span>
+<span class="n">X_test</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">Ridge</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
+<span class="n">y_eval_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_eval</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_squared_error</span>
+
+<span class="c1"># Evaluation</span>
+<span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_eval</span><span class="p">,</span><span class="n">y_eval_pred</span><span class="p">)</span> <span class="c1"># 7.320101458823871</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">Ridge</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
+<span class="n">y_eval_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_eval</span><span class="p">)</span>
+
+<span class="c1"># Another Evaluation</span>
+<span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_eval</span><span class="p">,</span><span class="n">y_eval_pred</span><span class="p">)</span> <span class="c1"># 2.383783075056986</span>
+
+<span class="c1"># Final Evaluation (Can no longer edit parameters after this!)</span>
+<span class="n">y_final_test_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+
+<span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">y_final_test_pred</span><span class="p">)</span> <span class="c1"># 2.254260083800517</span>
+</pre></div>
+
+<h3 id="cross-validation">Cross validation<a class="headerlink" href="#cross-validation" title="Permanent link"></a></h3>
+<p>Here is a flowchart of typical cross validation workflow in model training. The best parameters can be determined by grid search techniques.</p>
+<p><img src="images/grid_search_workflow.png" height=350></p>
+<p>When evaluating different settings (“hyperparameters”) for estimators, such as the C setting that must be manually set for an SVM, there is still a risk of overfitting on the test set because the parameters can be tweaked until the estimator performs optimally. This way, knowledge about the test set can “leak” into the model and evaluation metrics no longer report on generalization performance. To solve this problem, yet another part of the dataset can be held out as a so-called “validation set”: training proceeds on the training set, after which evaluation is done on the validation set, and when the experiment seems to be successful, final evaluation can be done on the test set.</p>
+<p>However, by partitioning the available data into three sets, we drastically reduce the number of samples which can be used for learning the model, and the results can depend on a particular random choice for the pair of (train, validation) sets.</p>
+<p>A solution to this problem is a procedure called cross-validation (CV for short). A test set should still be held out for final evaluation, but the validation set is no longer needed when doing CV. In the basic approach, called k-fold CV, the training set is split into k smaller sets (other approaches are described below, but generally follow the same principles). The following procedure is followed for each of the k “folds”:</p>
+<ul>
+<li>
+<p>A model is trained using <code>k - 1</code>of the folds as training data;</p>
+</li>
+<li>
+<p>the resulting model is validated on the remaining part of the data (i.e., it is used as a test set to compute a performance measure such as accuracy).</p>
+</li>
+</ul>
+<p>The performance measure reported by k-fold cross-validation is then the average of the values computed in the loop. This approach can be computationally expensive, but does not waste too much data (as is the case when fixing an arbitrary validation set), which is a major advantage in problems such as inverse inference where the number of samples is very small.</p>
+<p><img src="images/grid_search_cross_validation.png" height=350></p>
+<div class="highlight"><pre><span class="c1">## CREATE X and y</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s">&#39;sales&#39;</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">&#39;sales&#39;</span><span class="p">]</span>
+
+<span class="c1"># TRAIN TEST SPLIT</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span>
+
+<span class="c1"># SCALE DATA</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="n">scaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+<span class="n">scaler</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">X_train</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">X_test</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">Ridge</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">cross_validate</span>
+
+<span class="c1"># SCORING OPTIONS:</span>
+<span class="c1"># https://scikit-learn.org/stable/modules/model_evaluation.html</span>
+<span class="n">scores</span> <span class="o">=</span> <span class="n">cross_validate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="n">X_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">,</span>
+                         <span class="n">scoring</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;neg_mean_absolute_error&#39;</span><span class="p">,</span><span class="s">&#39;neg_mean_squared_error&#39;</span><span class="p">,</span><span class="s">&#39;max_error&#39;</span><span class="p">],</span><span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+
+<span class="c1"># Adjust model</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">Ridge</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># SCORING OPTIONS:</span>
+<span class="c1"># https://scikit-learn.org/stable/modules/model_evaluation.html</span>
+<span class="n">scores</span> <span class="o">=</span> <span class="n">cross_validate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="n">X_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">,</span>
+                         <span class="n">scoring</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;neg_mean_absolute_error&#39;</span><span class="p">,</span><span class="s">&#39;neg_mean_squared_error&#39;</span><span class="p">,</span><span class="s">&#39;max_error&#39;</span><span class="p">],</span><span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+
+<span class="c1"># Final Evaluation (Can no longer edit parameters after this!)</span>
+<span class="c1"># Need to fit the model first!</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
+
+<span class="n">y_final_test_pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+
+<span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">y_final_test_pred</span><span class="p">)</span> <span class="c1"># 2.319021579428752</span>
+</pre></div>
+
+<p><a href="https://scikit-learn.org/stable/modules/cross_validation.html">https://scikit-learn.org/stable/modules/cross_validation.html</a></p>
+<p><a href="https://www.udemy.com/course/python-for-machine-learning-data-science-masterclass/">scikit-learn course, Section 11: Feature Engineering and Data Preparation</a></p>
+<h3 id="grid-search">Grid Search<a class="headerlink" href="#grid-search" title="Permanent link"></a></h3>
+<p>We can search through a variety of combinations of hyperparameters with a grid search. While many linear models are quite simple and even come with their own specialized versions that do a search for you, this method of a grid search will can be applied to any model from sklearn.</p>
+<p>A search consists of:</p>
+<ul>
+<li>an estimator (regressor or classifier such as sklearn.svm.SVC());</li>
+<li>a parameter space;</li>
+<li>a method for searching or sampling candidates;</li>
+<li>a cross-validation scheme</li>
+<li>a score function.</li>
+</ul>
+<div class="highlight"><pre><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">&quot;../DATA/Advertising.csv&quot;</span><span class="p">)</span>
+<span class="c1">## CREATE X and y</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s">&#39;sales&#39;</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">&#39;sales&#39;</span><span class="p">]</span>
+
+<span class="c1"># TRAIN TEST SPLIT</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span>
+
+<span class="c1"># SCALE DATA</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="n">scaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+<span class="n">scaler</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">X_train</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">X_test</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">ElasticNet</span>
+
+<span class="n">base_elastic_model</span> <span class="o">=</span> <span class="n">ElasticNet</span><span class="p">()</span>
+
+<span class="n">param_grid</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;alpha&#39;</span><span class="p">:[</span><span class="mf">0.1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">50</span><span class="p">,</span><span class="mi">100</span><span class="p">],</span>
+              <span class="s">&#39;l1_ratio&#39;</span><span class="p">:[</span><span class="o">.</span><span class="mi">1</span><span class="p">,</span> <span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="o">.</span><span class="mi">7</span><span class="p">,</span> <span class="o">.</span><span class="mi">9</span><span class="p">,</span> <span class="o">.</span><span class="mi">95</span><span class="p">,</span> <span class="o">.</span><span class="mi">99</span><span class="p">,</span> <span class="mi">1</span><span class="p">]}</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">GridSearchCV</span>
+
+<span class="c1"># verbose number a personal preference</span>
+<span class="n">grid_model</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="n">base_elastic_model</span><span class="p">,</span>
+                          <span class="n">param_grid</span><span class="o">=</span><span class="n">param_grid</span><span class="p">,</span>
+                          <span class="n">scoring</span><span class="o">=</span><span class="s">&#39;neg_mean_squared_error&#39;</span><span class="p">,</span>
+                          <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                          <span class="n">verbose</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">grid_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
+
+<span class="n">grid_model</span><span class="o">.</span><span class="n">best_estimator_</span>
+<span class="c1"># ElasticNet(alpha=0.1, copy_X=True, fit_intercept=True, l1_ratio=1,</span>
+<span class="c1">#            max_iter=1000, normalize=False, positive=False, precompute=False,</span>
+<span class="c1">#            random_state=None, selection=&#39;cyclic&#39;, tol=0.0001, warm_start=False)</span>
+
+<span class="n">grid_model</span><span class="o">.</span><span class="n">best_params_</span>
+<span class="c1"># {&#39;alpha&#39;: 0.1, &#39;l1_ratio&#39;: 1}</span>
+
+
+<span class="c1"># Using Best Model From Grid Search</span>
+<span class="n">y_pred</span> <span class="o">=</span> <span class="n">grid_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_squared_error</span>
+
+<span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">y_pred</span><span class="p">)</span> <span class="c1"># 2.3873426420874737</span>
+</pre></div>
+
 <h2 id="algorithms">Algorithms<a class="headerlink" href="#algorithms" title="Permanent link"></a></h2>
+<h3 id="classification-vs-regression">Classification vs Regression<a class="headerlink" href="#classification-vs-regression" title="Permanent link"></a></h3>
+<p><strong>Regression task</strong> - continious value to predict (example: future prices, electricity loads, etc)</p>
+<p><strong>Classification task</strong> - categorical value to predict</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/regression_vs_classification.jpg"></p>
+<h4 id="binary-classification">Binary classification<a class="headerlink" href="#binary-classification" title="Permanent link"></a></h4>
+<p>is the task of classifying the elements of a set into one of two groups (each called class).
+Some of the methods commonly used for binary classification are:</p>
+<ul>
+<li>Decision trees</li>
+<li>Random forests</li>
+<li>Bayesian networks</li>
+<li>Support vector machines</li>
+<li>Neural networks</li>
+<li>Logistic regression</li>
+<li>Probit model</li>
+<li>Genetic Programming</li>
+<li>Multi expression programming</li>
+<li>Linear genetic programming </li>
+</ul>
+<p><a href="https://en.wikipedia.org/wiki/Binary_classification">https://en.wikipedia.org/wiki/Binary_classification</a></p>
+<h4 id="multiclass-classification">Multiclass classification<a class="headerlink" href="#multiclass-classification" title="Permanent link"></a></h4>
+<p>is the problem of classifying instances into one of three or more classes</p>
+<p>Several algorithms have been developed based on: </p>
+<ul>
+<li>neural networks</li>
+<li>decision trees</li>
+<li>k-nearest neighbors</li>
+<li>naive Bayes</li>
+<li>support vector machines </li>
+<li>extreme learning machines </li>
+</ul>
+<p><a href="https://en.wikipedia.org/wiki/Multiclass_classification">https://en.wikipedia.org/wiki/Multiclass_classification</a></p>
+<h4 id="multi-label-classification">Multi-label classification<a class="headerlink" href="#multi-label-classification" title="Permanent link"></a></h4>
+<p>Target can be assigned more than one option</p>
+<h3 id="deep-learning-vs-shallow-learning">Deep learning vs shallow learning<a class="headerlink" href="#deep-learning-vs-shallow-learning" title="Permanent link"></a></h3>
+<p>Shallow learning (algorithms from scikit) for structured data (columns, tabels, etc)</p>
+<p>Deep learning (NN) is better for unstructured data (video, audio, etc)</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/deep_vs_shallow.jpg"></p>
+<h3 id="supervised-learning">Supervised learning<a class="headerlink" href="#supervised-learning" title="Permanent link"></a></h3>
+<p>is a category of machine learning that uses labeled datasets to train algorithms to predict outcomes and recognize patterns.</p>
+<h4 id="linear-regression">Linear Regression<a class="headerlink" href="#linear-regression" title="Permanent link"></a></h4>
+<p>is used to predict the value of a variable based on the value of another variable. The variable you want to predict is called the dependent variable. The variable you are using to predict the other variable&rsquo;s value is called the independent variable.</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/linear_regression.jpg"></p>
+<h5 id="metrics">Metrics<a class="headerlink" href="#metrics" title="Permanent link"></a></h5>
+<p>Mean Absolute Error (MAE) is the mean of the absolute value of the errors:</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/mean_absolute_error.jpg"></p>
+<p>Mean Squared Error (MSE) is the mean of the squared errors:</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/mean_squared_error.jpg"></p>
+<p>Root Mean Squared Error (RMSE) is the square root of the mean of the squared errors:</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/root_mean_squared_error.jpg"></p>
+<p>Comparing these metrics:</p>
+<ul>
+<li><strong>MAE</strong> is the easiest to understand, because it&rsquo;s the average error.</li>
+<li><strong>MSE</strong> is more popular than MAE, because MSE &ldquo;punishes&rdquo; larger errors, which tends to be useful in the real world.</li>
+<li><strong>RMSE</strong> is even more popular than MSE, because RMSE is interpretable in the &ldquo;y&rdquo; units.</li>
+<li><strong>RSE</strong></li>
+</ul>
+<p>All of these are loss functions, because we want to minimize them.</p>
+<p><strong>Residual</strong> is the difference between the actual value and the value predicted by the model (y-ŷ) for any given point.</p>
+<p>A kernel <strong>density</strong> estimate plot is a method for visualizing the distribution of observations in a dataset, analogous to a histogram. KDE represents the data using a continuous probability density curve in one or more dimensions.</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/residual_0.jpg" width="290">
+<img src="/home/isidzukuri/Desktop/ml_algorithms/images/residual_1.jpg" width="290">
+<img src="/home/isidzukuri/Desktop/ml_algorithms/images/residual_2.jpg" width="290"></p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/lr_residual_invalid.jpg"></p>
+<p>Acceptable values of metrics depend on context, so meaning of numbers is relative here.</p>
+<p><strong>Scikit-learn example:</strong>
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">()</span> <span class="c1"># creating a model instance</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span> <span class="c1"># training a model</span>
+
+<span class="n">test_predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span> <span class="c1"># it returns predicted value in array</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_absolute_error</span><span class="p">,</span> <span class="n">mean_squared_error</span>
+
+<span class="c1"># computing of model performance metrics</span>
+<span class="n">MAE</span> <span class="o">=</span> <span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
+<span class="n">MSE</span> <span class="o">=</span> <span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
+<span class="n">RMSE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">MSE</span><span class="p">)</span> <span class="c1">#import numpy as np</span>
+</pre></div></p>
+<h4 id="polynomial-regression">Polynomial Regression<a class="headerlink" href="#polynomial-regression" title="Permanent link"></a></h4>
+<p>is a form of regression analysis in which higher-degree functions of the independent variable, such as squares and cubes, are used to fit the data. It allows for more complex relationships between variables compared to linear regression.</p>
+<p>It can help when:</p>
+<ul>
+<li>signal from existing feature is to weak, example:</li>
+</ul>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/polynominal_log.jpg" height="330"></p>
+<ul>
+<li>when relationship between the feature(s) and the response variable can’t be best described with a straight line</li>
+</ul>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/polynomial-regression-3.png" height="370"></p>
+<ul>
+<li>when two features have meaning only when used together in sync (synergy). Interaction between all pairs of features. In other words permutations of features can show ussefull signal </li>
+</ul>
+<p>Creates more features from the original x feature for some d degree of polynomial.</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/polynominial.jpg"></p>
+<p>Then we can call the linear regression model on it, since in reality, we&rsquo;re just treating these new polynomial features <code>x^2, x^3, ... x^d</code> as new features. Obviously we need to be careful about choosing the correct value of <strong>d</strong> , the degree of the model. </p>
+<p>The other thing to note here is we have multiple X features, not just a single one as in the formula above, so in reality, the PolynomialFeatures will also take interaction terms into account for example, if an input sample is two dimensional and of the form <code>[a, b]</code>, the degree-2 polynomial features are <code>[1, a, b, a^2, ab, b^2]</code>.</p>
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">PolynomialFeatures</span>
+
+<span class="n">polinominal_converter</span> <span class="o">=</span> <span class="n">PolynomialFeatures</span><span class="p">(</span><span class="n">degree</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">include_bias</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">poly_features</span> <span class="o">=</span> <span class="n">polinominal_converter</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">poly_features</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">(</span><span class="n">fit_intercept</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span> <span class="c1"># result. it returns predicted value in array</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_absolute_error</span><span class="p">,</span> <span class="n">mean_squared_error</span>
+<span class="c1"># computing of model performance metrics</span>
+<span class="n">MAE</span> <span class="o">=</span> <span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
+<span class="n">MSE</span> <span class="o">=</span> <span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
+<span class="n">RMSE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">MSE</span><span class="p">)</span> <span class="c1">#import numpy as np</span>
+
+<span class="c1">### **** note ****</span>
+<span class="c1"># model.predict() expects output of polinominal_converter.fit_transform(()</span>
+<span class="c1"># For example if new data came in stack of calls would look like:</span>
+<span class="n">new_data_item</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">149</span><span class="p">,</span><span class="mi">22</span><span class="p">,</span><span class="mi">12</span><span class="p">]]</span>
+<span class="n">new_data_item_featres</span> <span class="o">=</span> <span class="n">polinominal_converter</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">new_data_item</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">new_data_item_featres</span><span class="p">)</span>
+</pre></div>
+
+<h4 id="ridge-regression">Ridge Regression<a class="headerlink" href="#ridge-regression" title="Permanent link"></a></h4>
+<p>is a statistical regularization technique. It corrects for overfitting on training data in machine learning models. Ridge regression—also known as L2 regularization—is one of several types of regularization for linear regression models.</p>
+<p>In machine learning, ridge regression helps reduce overfitting that results from model complexity. Model complexity can be due to:</p>
+<ul>
+<li>
+<p>A model possessing too many features. Features are the model’s predictors and may also be called “parameters” in machine learning. Online tutorials often recommend keeping the number of features below the number of instances in training data sets. Such is not always be feasible however.</p>
+</li>
+<li>
+<p>Features possessing too much weight. Feature weight refers to a given predictor’s effect on the model output. A high feature weight is equivalent to a high-value coefficient.</p>
+</li>
+</ul>
+<p>Simpler models do not intrinsically perform better then complex models. Nevertheless, a high degree of model complexity can inhibit a model’s ability to generalize on new data outside of the training set.</p>
+<p>Because ridge regression does not perform feature selection, it cannot reduce model complexity by eliminating features. But if one or more features too heavily affect a model’s output, ridge regression ridge regression can shrink high feature weights (i.e. coefficients) across the model per the L2 penalty term. This reduces the complexity of the model and helps make model predictions less erratically dependent on any one or more feature.</p>
+<p><img alt="" src="/home/isidzukuri/Desktop/ml_algorithms/images/Ridge-regression-cost-function-2.png" /></p>
+<p><a href="https://www.ibm.com/topics/ridge-regression">https://www.ibm.com/topics/ridge-regression</a></p>
+<p>Example 1:</p>
+<p><div class="highlight"><pre><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">Ridge</span>
+
+<span class="n">ridge_model</span> <span class="o">=</span> <span class="n">Ridge</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="n">ridge_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="n">test_predictions</span> <span class="o">=</span> <span class="n">ridge_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span> <span class="c1"># the result</span>
+
+
+<span class="c1"># computing of model performance metrics</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_absolute_error</span><span class="p">,</span><span class="n">mean_squared_error</span>
+<span class="n">MAE</span> <span class="o">=</span> <span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">test_predictions</span><span class="p">)</span>
+<span class="n">MSE</span> <span class="o">=</span> <span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">test_predictions</span><span class="p">)</span>
+<span class="n">RMSE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">MSE</span><span class="p">)</span>
+</pre></div>
+<a href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html">https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html</a></p>
+<p>Example 2 (model selects the best of proposed alpha coef):
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">RidgeCV</span>
+
+<span class="n">ridge_cv_model</span> <span class="o">=</span> <span class="n">RidgeCV</span><span class="p">(</span><span class="n">alphas</span><span class="o">=</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">),</span><span class="n">scoring</span><span class="o">=</span><span class="s">&#39;neg_mean_absolute_error&#39;</span><span class="p">)</span> <span class="c1"># it should pick the best alpha from given automaticaly</span>
+
+<span class="n">ridge_cv_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
+
+<span class="n">test_predictions</span> <span class="o">=</span> <span class="n">ridge_cv_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span> <span class="c1"># the result</span>
+
+<span class="c1"># computing of model performance metrics</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_absolute_error</span><span class="p">,</span><span class="n">mean_squared_error</span>
+<span class="n">MAE</span> <span class="o">=</span> <span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">test_predictions</span><span class="p">)</span>
+<span class="n">MSE</span> <span class="o">=</span> <span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">test_predictions</span><span class="p">)</span>
+<span class="n">RMSE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">MSE</span><span class="p">)</span>
+</pre></div></p>
+<p><a href="https://scikit-learn.org/stable/modules/linear_model.html#ridge-complexity">https://scikit-learn.org/stable/modules/linear_model.html#ridge-complexity</a></p>
+<h4 id="lasso">Lasso<a class="headerlink" href="#lasso" title="Permanent link"></a></h4>
+<p>is a linear model that estimates sparse coefficients. It is useful in some contexts due to its tendency to prefer solutions with fewer non-zero coefficients, effectively reducing the number of features upon which the given solution is dependent. For this reason, Lasso and its variants are fundamental to the field of compressed sensing. Under certain conditions, it can recover the exact set of non-zero coefficients.</p>
+<p>Lasso regression is ideal for predictive problems; its ability to perform automatic variable selection can simplify models and enhance prediction accuracy. That said, ridge regression may outperform lasso regression due to the amount of bias that lasso regression introduces by reducing coefficients towards zero. It also has its limitations with correlated features in the data as it arbitrarily chooses a feature to include in the model.</p>
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LassoCV</span>
+
+<span class="n">lasso_cv_model</span> <span class="o">=</span> <span class="n">LassoCV</span><span class="p">(</span><span class="n">eps</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span><span class="n">n_alphas</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">lasso_cv_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
+<span class="n">test_predictions</span> <span class="o">=</span> <span class="n">lasso_cv_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span><span class="c1"># the result</span>
+
+<span class="c1"># computing of model performance metrics</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_absolute_error</span><span class="p">,</span><span class="n">mean_squared_error</span>
+<span class="n">MAE</span> <span class="o">=</span> <span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">test_predictions</span><span class="p">)</span>
+<span class="n">MSE</span> <span class="o">=</span> <span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">test_predictions</span><span class="p">)</span>
+<span class="n">RMSE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">MSE</span><span class="p">)</span>
+</pre></div>
+
+<p><a href="https://scikit-learn.org/stable/modules/linear_model.html#lasso">https://scikit-learn.org/stable/modules/linear_model.html#lasso</a></p>
+<p><a href="https://www.ibm.com/topics/lasso-regression">https://www.ibm.com/topics/lasso-regression</a></p>
+<h4 id="elastic-net">Elastic Net<a class="headerlink" href="#elastic-net" title="Permanent link"></a></h4>
+<p>combines the penalties of ridge regression and lasso in an attempt to get the best of both.</p>
+<p>ElasticNet is a linear regression model trained with both l1 and l2-norm regularization of the coefficients. This combination allows for learning a sparse model where few of the weights are non-zero like Lasso, while still maintaining the regularization properties of Ridge. We control the convex combination of l1 and l2 using the l1_ratio parameter.</p>
+<p>Elastic-net is useful when there are multiple features that are correlated with one another. Lasso is likely to pick one of these at random, while elastic-net is likely to pick both.</p>
+<p>A practical advantage of trading-off between Lasso and Ridge is that it allows Elastic-Net to inherit some of Ridge’s stability under rotation.</p>
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">ElasticNetCV</span>
+
+<span class="n">elastic_model</span> <span class="o">=</span> <span class="n">ElasticNetCV</span><span class="p">(</span><span class="n">l1_ratio</span><span class="o">=</span><span class="p">[</span><span class="o">.</span><span class="mi">1</span><span class="p">,</span> <span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="o">.</span><span class="mi">7</span><span class="p">,</span><span class="o">.</span><span class="mi">9</span><span class="p">,</span> <span class="o">.</span><span class="mi">95</span><span class="p">,</span> <span class="o">.</span><span class="mi">99</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span><span class="n">tol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span> 
+<span class="c1"># l1_ratio: how much it is lasso?  0 = 100% ridge, 1 = 100% lasso</span>
+
+<span class="n">elastic_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
+<span class="n">test_predictions</span> <span class="o">=</span> <span class="n">elastic_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span><span class="c1"># the result</span>
+
+<span class="c1"># computing of model performance metrics</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_absolute_error</span><span class="p">,</span><span class="n">mean_squared_error</span>
+<span class="n">MAE</span> <span class="o">=</span> <span class="n">mean_absolute_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">test_predictions</span><span class="p">)</span>
+<span class="n">MSE</span> <span class="o">=</span> <span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">test_predictions</span><span class="p">)</span>
+<span class="n">RMSE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">MSE</span><span class="p">)</span>
+</pre></div>
+
+<p><a href="https://scikit-learn.org/stable/modules/linear_model.html#elastic-net">https://scikit-learn.org/stable/modules/linear_model.html#elastic-net</a></p>
+<h4 id="logistic-regression">Logistic regression<a class="headerlink" href="#logistic-regression" title="Permanent link"></a></h4>
+<p>widely used for binary classification tasks, such as identifying whether an email is spam or not and diagnosing diseases by assessing the presence or absence of specific conditions based on patient test results. This approach utilizes the logistic (or sigmoid) function to transform a linear combination of input features into a probability value ranging between 0 and 1. This probability indicates the likelihood that a given input corresponds to one of two predefined categories. The essential mechanism of logistic regression is grounded in the logistic function&rsquo;s ability to model the probability of binary outcomes accurately. With its distinctive S-shaped curve, the logistic function effectively maps any real-valued number to a value within the 0 to 1 interval. This feature renders it particularly suitable for binary classification tasks, such as sorting emails into &ldquo;spam&rdquo; or &ldquo;not spam&rdquo;. By calculating the probability that the dependent variable will be categorized into a specific group, logistic regression provides a probabilistic framework that supports informed decision-making.</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/Exam_pass_logistic_curve.svg" height="370"></p>
+<p>Binary problem example:</p>
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span>
+<span class="n">scaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+<span class="n">scaled_X_train</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">scaled_X_test</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+
+<span class="n">log_model</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">()</span>
+<span class="n">log_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">scaled_X_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
+
+<span class="n">y_pred</span> <span class="o">=</span> <span class="n">log_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">scaled_X_test</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">accuracy_score</span><span class="p">,</span><span class="n">confusion_matrix</span><span class="p">,</span><span class="n">classification_report</span><span class="p">,</span><span class="n">plot_confusion_matrix</span>
+<span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">y_pred</span><span class="p">)</span>
+<span class="n">confusion_matrix</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">y_pred</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">classification_report</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">y_pred</span><span class="p">))</span>
+</pre></div>
+
+<p>Multiclass problem example:</p>
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span>
+<span class="n">scaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+<span class="n">scaled_X_train</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">scaled_X_test</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">GridSearchCV</span>
+
+<span class="c1"># Depending on warnings you may need to adjust max iterations allowed </span>
+<span class="c1"># Or experiment with different solvers</span>
+<span class="n">log_model</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">solver</span><span class="o">=</span><span class="s">&#39;saga&#39;</span><span class="p">,</span><span class="n">multi_class</span><span class="o">=</span><span class="s">&quot;ovr&quot;</span><span class="p">,</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>
+
+<span class="c1"># Penalty Type</span>
+<span class="n">penalty</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;l1&#39;</span><span class="p">,</span> <span class="s">&#39;l2&#39;</span><span class="p">]</span>
+
+<span class="c1"># Use logarithmically spaced C values (recommended in official docs)</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+<span class="n">grid_model</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">log_model</span><span class="p">,</span><span class="n">param_grid</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;C&#39;</span><span class="p">:</span><span class="n">C</span><span class="p">,</span><span class="s">&#39;penalty&#39;</span><span class="p">:</span><span class="n">penalty</span><span class="p">})</span>
+<span class="n">grid_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">scaled_X_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">accuracy_score</span><span class="p">,</span><span class="n">confusion_matrix</span><span class="p">,</span><span class="n">classification_report</span><span class="p">,</span><span class="n">plot_confusion_matrix</span>
+
+<span class="n">y_pred</span> <span class="o">=</span> <span class="n">grid_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">scaled_X_test</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">accuracy_score</span><span class="p">,</span><span class="n">confusion_matrix</span><span class="p">,</span><span class="n">classification_report</span><span class="p">,</span><span class="n">plot_confusion_matrix</span>
+<span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">y_pred</span><span class="p">)</span>
+<span class="n">confusion_matrix</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">y_pred</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">classification_report</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span><span class="n">y_pred</span><span class="p">))</span>
+</pre></div>
+
+<p><a href="https://en.wikipedia.org/wiki/Logistic_regression">https://en.wikipedia.org/wiki/Logistic_regression</a></p>
+<p><a href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html#sklearn.linear_model.LogisticRegression">https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html#sklearn.linear_model.LogisticRegression</a></p>
+<p><a href="https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression">https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression</a></p>
+<h3 id="unsupervised-learning">Unsupervised learning<a class="headerlink" href="#unsupervised-learning" title="Permanent link"></a></h3>
+<p>in artificial intelligence is a type of machine learning that learns from data without human supervision.</p>
 <h3 id="knn-algorithm">KNN algorithm<a class="headerlink" href="#knn-algorithm" title="Permanent link"></a></h3>
 <p><img alt="" src="/home/isidzukuri/Desktop/ml_algorithms/images/knn.gif" /></p>
 <p>The k-nearest neighbors (KNN) algorithm is a non-parametric, supervised learning classifier, which uses proximity to make classifications or predictions about the grouping of an individual data point. It is one of the popular and simplest classification and regression classifiers used in machine learning today.</p>
@@ -1177,6 +1690,16 @@ body .markdown-body
 <li><a href="https://towardsdatascience.com/the-mostly-complete-chart-of-neural-networks-explained-3fb6f2367464">https://towardsdatascience.com/the-mostly-complete-chart-of-neural-networks-explained-3fb6f2367464</a></li>
 <li><a class="magiclink magiclink-github magiclink-repository" href="https://github.com/isidzukuri/nn_discovery" title="GitHub Repository: isidzukuri/nn_discovery">isidzukuri/nn_discovery</a></li>
 </ul>
+<h4 id="optimizer">Optimizer<a class="headerlink" href="#optimizer" title="Permanent link"></a></h4>
+<p>Tells your model how to update its internal parameters to best lower the loss.</p>
+<p><a href="https://www.learnpytorch.io/01_pytorch_workflow/">https://www.learnpytorch.io/01_pytorch_workflow/</a></p>
+<h4 id="how-to-pick-lossoptimizer-function">How to pick loss/optimizer function?<a class="headerlink" href="#how-to-pick-lossoptimizer-function" title="Permanent link"></a></h4>
+<p>Table of various loss functions and optimizers, there are more but these some common ones:</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/loss_optimizer_table.jpg"></p>
+<p><a href="https://pytorch.org/docs/stable/nn.html#loss-functions">https://pytorch.org/docs/stable/nn.html#loss-functions</a></p>
+<p><a href="https://pytorch.org/docs/stable/optim.html">https://pytorch.org/docs/stable/optim.html</a></p>
+<h4 id="learning-rate">learning rate<a class="headerlink" href="#learning-rate" title="Permanent link"></a></h4>
+<p>lr is the learning rate you&rsquo;d like the optimizer to update the parameters at, higher means the optimizer will try larger updates (these can sometimes be too large and the optimizer will fail to work), lower means the optimizer will try smaller updates (these can sometimes be too small and the optimizer will take too long to find the ideal values). The learning rate is considered a hyperparameter (because it&rsquo;s set by a machine learning engineer). Common starting values for the learning rate are 0.01, 0.001, 0.0001, however, these can also be adjusted over time</p>
 <h4 id="raw-logits-predictions-probabilities-predictions-labels">Raw logits -&gt; Predictions probabilities -&gt; Predictions labels<a class="headerlink" href="#raw-logits-predictions-probabilities-predictions-labels" title="Permanent link"></a></h4>
 <p>model outputs are going to be <strong>logits</strong></p>
 <p><strong>logits</strong> can be converted into <strong>prediction_probabilities</strong> by passing them to activation function</p>
@@ -1195,6 +1718,15 @@ body .markdown-body
 <p>The algorithm is used to effectively train a neural network through a method called chain rule. In simple terms, after each forward pass through a network, backpropagation performs a backward pass while adjusting the model’s parameters (weights and biases).</p>
 <p>Backpropagation is a gradient estimation method used to train neural network models. The gradient estimate is used by the optimization algorithm to compute the network parameter updates. </p>
 <p><a href="https://en.wikipedia.org/wiki/Backpropagation">https://en.wikipedia.org/wiki/Backpropagation</a></p>
+<h4 id="regularization-in-neural-networks">Regularization in Neural Networks<a class="headerlink" href="#regularization-in-neural-networks" title="Permanent link"></a></h4>
+<ul>
+<li><strong>Dropout</strong> regularizes neural networks by randomly dropping out nodes, along with their input and output connections, from the network during training. Dropout trains several variations of a fixed-sized architecture, with each variation having different randomized nodes left out of the architecture.</li>
+<li><strong>Weight decay</strong></li>
+<li><strong>Learning rate warmup</strong></li>
+<li><strong>Learning rate decay</strong></li>
+<li><strong>Gradient clipping</strong></li>
+<li><strong>Label smoothing</strong></li>
+</ul>
 <h4 id="convolutional-neural-networks-cnn">Convolutional neural networks (CNN)<a class="headerlink" href="#convolutional-neural-networks-cnn" title="Permanent link"></a></h4>
 <p>is the extended version of artificial neural networks (ANN) which is predominantly used to extract the feature from the grid-like matrix dataset. For example visual datasets like images or videos where data patterns play an extensive role.</p>
 <p><img alt="CNN" src="/home/isidzukuri/Desktop/ml_algorithms/images/cnn.png" /></p>
@@ -1204,6 +1736,9 @@ body .markdown-body
 - Facial recognition
 - Optical flow (task of predicting movement between two images)</p>
 <p><strong>CNN explainer</strong> <a href="https://poloclub.github.io/cnn-explainer/">https://poloclub.github.io/cnn-explainer/</a></p>
+<h4 id="other-nn-architectures">Other NN architectures<a class="headerlink" href="#other-nn-architectures" title="Permanent link"></a></h4>
+<p><a href="https://jalammar.github.io/visualizing-neural-machine-translation-mechanics-of-seq2seq-models-with-attention/">Visualizing A Neural Machine Translation Model (Mechanics of Seq2seq Models With Attention)</a></p>
+<p><a href="https://jalammar.github.io/illustrated-transformer/">The Illustrated Transformer</a></p>
 <h4 id="optical-flow">Optical Flow<a class="headerlink" href="#optical-flow" title="Permanent link"></a></h4>
 <p>Optical flow is the task of predicting movement between two images, usually two consecutive frames of a video. Optical flow models take two images as input, and predict a flow: the flow indicates the displacement of every single pixel in the first image, and maps it to its corresponding pixel in the second image. </p>
 <p><a href="https://www.youtube.com/watch?v=YRhxdVk_sIs">https://www.youtube.com/watch?v=YRhxdVk_sIs</a></p>
@@ -1211,16 +1746,20 @@ body .markdown-body
 <p><a href="https://www.geeksforgeeks.org/introduction-convolution-neural-network/">https://www.geeksforgeeks.org/introduction-convolution-neural-network/</a></p>
 <h4 id="transfer-learning">Transfer learning<a class="headerlink" href="#transfer-learning" title="Permanent link"></a></h4>
 <p>Transferring information from one machine learning task to another. </p>
+<p>Transfer learning allows us to take the patterns (also called weights) another model has learned from another problem and use them for our own problem.</p>
 <p>Options:</p>
 <ul>
 <li>
 <p>use pretrained model as it is</p>
 </li>
 <li>
-<p>use weights of pretrained model on different training dataset + adding/editing some layers</p>
+<p>use pretrained model and weights on different training dataset + adding/editing some layers</p>
 </li>
 </ul>
 <p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/06-effnet-b0-feature-extractor.png"></p>
+<p>Input data should go thru the same transformations as for original model.</p>
+<p>The process of transfer learning usually goes: freeze some base layers of a pretrained model (typically the <code>features</code> section) and then adjust the output layers (also called <code>head/classifier</code> layers) to suit your needs.</p>
+<p><a href="https://www.learnpytorch.io/06_pytorch_transfer_learning/">https://www.learnpytorch.io/06_pytorch_transfer_learning/</a></p>
 <h4 id="which-pretrained-model-should-be-chosen">Which pretrained model should be chosen<a class="headerlink" href="#which-pretrained-model-should-be-chosen" title="Permanent link"></a></h4>
 <p>It depends on your problem/the device you&rsquo;re working with.</p>
 <p>Generally, the higher number in the model name (e.g. efficientnet_b0() -&gt; efficientnet_b1() -&gt; efficientnet_b7()) means better performance but a larger model.</p>
@@ -1229,47 +1768,21 @@ body .markdown-body
 <p>For example, say you&rsquo;d like to run your model on a mobile-device, you&rsquo;ll have to take into account the limited compute resources on the device, thus you&rsquo;d be looking for a smaller model.</p>
 <p>But if you&rsquo;ve got unlimited compute power, as The Bitter Lesson states, you&rsquo;d likely take the biggest, most compute hungry model you can.</p>
 <p>Understanding this performance vs. speed vs. size tradeoff will come with time and practice.</p>
+<h4 id="recipe-for-training-nn">Recipe for training NN<a class="headerlink" href="#recipe-for-training-nn" title="Permanent link"></a></h4>
+<p><a href="http://karpathy.github.io/2019/04/25/recipe/">http://karpathy.github.io/2019/04/25/recipe/</a></p>
 <h3 id="more-algorithms">More algorithms<a class="headerlink" href="#more-algorithms" title="Permanent link"></a></h3>
 <ul>
 <li>
 <p>AWS built-in algorithms or pretrained models: <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/algos.html">https://docs.aws.amazon.com/sagemaker/latest/dg/algos.html</a></p>
 </li>
 <li>
-<p><a href="https://scikit-learn.org/stable/user_guide.html">https://scikit-learn.org/stable/user_guide.html</a></p>
+<p><a href="https://scikit-learn.org/stable/user_guide">https://scikit-learn.org/stable/user_guide</a>.</p>
 </li>
 </ul>
 <h3 id="machine-learning-components">machine learning components<a class="headerlink" href="#machine-learning-components" title="Permanent link"></a></h3>
 <p><a href="https://paperswithcode.com/methods">https://paperswithcode.com/methods</a></p>
-<h3 id="binary-classification">Binary classification<a class="headerlink" href="#binary-classification" title="Permanent link"></a></h3>
-<p>is the task of classifying the elements of a set into one of two groups (each called class).
-Some of the methods commonly used for binary classification are:</p>
-<ul>
-<li>Decision trees</li>
-<li>Random forests</li>
-<li>Bayesian networks</li>
-<li>Support vector machines</li>
-<li>Neural networks</li>
-<li>Logistic regression</li>
-<li>Probit model</li>
-<li>Genetic Programming</li>
-<li>Multi expression programming</li>
-<li>Linear genetic programming </li>
-</ul>
-<p><a href="https://en.wikipedia.org/wiki/Binary_classification">https://en.wikipedia.org/wiki/Binary_classification</a></p>
-<h3 id="multiclass-classification">Multiclass classification<a class="headerlink" href="#multiclass-classification" title="Permanent link"></a></h3>
-<p>is the problem of classifying instances into one of three or more classes</p>
-<p>Several algorithms have been developed based on: 
-- neural networks
-- decision trees
-- k-nearest neighbors
-- naive Bayes
-- support vector machines 
-- extreme learning machines </p>
-<p><a href="https://en.wikipedia.org/wiki/Multiclass_classification">https://en.wikipedia.org/wiki/Multiclass_classification</a></p>
-<h3 id="multi-label-classification">Multi-label classification<a class="headerlink" href="#multi-label-classification" title="Permanent link"></a></h3>
-<p>Target can be assigned more than one option</p>
 <h2 id="regularization">Regularization<a class="headerlink" href="#regularization" title="Permanent link"></a></h2>
-<p>is a set of methods for reducing overfitting in machine learning models. Typically, regularization trades a marginal decrease in training accuracy for an increase in generalizability.</p>
+<p>is a set of methods for reducing overfitting in machine learning models. Typically, regularization trades a marginal decrease in training accuracy for an increase in generalizability. Prevents overfitting.</p>
 <p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/under_over_fit.png"></p>
 <p><a href="https://www.ibm.com/topics/regularization">https://www.ibm.com/topics/regularization</a></p>
 <p><a href="https://www.geeksforgeeks.org/regularization-in-machine-learning/">https://www.geeksforgeeks.org/regularization-in-machine-learning/</a></p>
@@ -1291,11 +1804,6 @@ Some of the methods commonly used for binary classification are:</p>
 <li><strong>Early stopping</strong> is perhaps the most readily implemented regularization technique. In short, it limits the number of iterations during model training. Here, a model continuously passes through the training data, stopping once there is no improvement (and perhaps even deterioration) in training and validation accuracy. The goal is to train a model until it has reached the lowest possible training error preceding a plateau or increase in validation error.</li>
 </ul>
 <p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/early_stop.png"></p>
-<h4 id="neural-networks_1">Neural networks<a class="headerlink" href="#neural-networks_1" title="Permanent link"></a></h4>
-<ul>
-<li><strong>Dropout</strong> regularizes neural networks by randomly dropping out nodes, along with their input and output connections, from the network during training. Dropout trains several variations of a fixed-sized architecture, with each variation having different randomized nodes left out of the architecture.</li>
-<li><strong>Weight decay</strong></li>
-</ul>
 <h2 id="confusion-matrix">Confusion matrix<a class="headerlink" href="#confusion-matrix" title="Permanent link"></a></h2>
 <p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/confusion_matrix.jpg" height="300"></p>
 <h2 id="performance-metrics-in-machine-learning">Performance Metrics in Machine Learning<a class="headerlink" href="#performance-metrics-in-machine-learning" title="Permanent link"></a></h2>
@@ -1370,6 +1878,7 @@ Some of the methods commonly used for binary classification are:</p>
 <p><a href="https://www.v7labs.com/blog/performance-metrics-in-machine-learning">https://www.v7labs.com/blog/performance-metrics-in-machine-learning</a></p>
 <p><a href="https://www.aiacceleratorinstitute.com/evaluating-machine-learning-models-metrics-and-techniques/">https://www.aiacceleratorinstitute.com/evaluating-machine-learning-models-metrics-and-techniques/</a></p>
 <p><a href="https://developers.google.com/machine-learning/crash-course/classification/precision-and-recall">https://developers.google.com/machine-learning/crash-course/classification/precision-and-recall</a></p>
+<p><a href="https://scikit-learn.org/stable/modules/model_evaluation.html">https://scikit-learn.org/stable/modules/model_evaluation.html</a></p>
 <h2 id="ensemble-methods">Ensemble methods<a class="headerlink" href="#ensemble-methods" title="Permanent link"></a></h2>
 <p>In statistics and machine learning, ensemble methods use multiple learning algorithms to obtain better predictive performance than could be obtained from any of the constituent learning algorithms alone.</p>
 <p>Ensemble means ‘a collection of things’ and in Machine Learning terminology, Ensemble learning refers to the approach of combining multiple ML models to produce a more accurate and robust prediction compared to any individual model. It implements an ensemble of fast algorithms (classifiers) such as decision trees for learning and allows them to vote.</p>
@@ -1377,6 +1886,171 @@ Some of the methods commonly used for binary classification are:</p>
 <p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/bagging_boosting.jpg" height="300"></p>
 <p><a href="https://en.wikipedia.org/wiki/Ensemble_learning">https://en.wikipedia.org/wiki/Ensemble_learning</a></p>
 <p><a href="https://www.geeksforgeeks.org/a-comprehensive-guide-to-ensemble-learning/">https://www.geeksforgeeks.org/a-comprehensive-guide-to-ensemble-learning/</a></p>
+<h2 id="training-data">Training data<a class="headerlink" href="#training-data" title="Permanent link"></a></h2>
+<h3 id="sampling">Sampling<a class="headerlink" href="#sampling" title="Permanent link"></a></h3>
+<p>in ML involves selecting a subset of data from a larger dataset, ensuring that the smaller dataset accurately represents the larger one.</p>
+<p>Types of sampling:</p>
+<ul>
+<li>
+<p><strong>Random Sampling</strong>: Random sampling is the simplest form of sampling in machine learning. It involves selecting data points randomly from a dataset with no specific pattern. This method assumes that every data point in the dataset has an equal chance of being selected. </p>
+</li>
+<li>
+<p><strong>Non probability sampling</strong>(convinience, snowball, judgment, quota) is when the selection of data is not basd on ny probability criteria.</p>
+</li>
+<li>
+<p><strong>Simple random sampling</strong>: you give all samples in population equal probabilities of being selected. For example, you randomly select 10% of the population, giving all members of this population an equal chance 10% of being selected.</p>
+</li>
+<li>
+<p><strong>Stratified sampling</strong>: you can first divide popultion into th groups and sample from each group separetly.</p>
+</li>
+<li>
+<p><strong>Weighed sampling</strong>: each sample is given a weight, which determines the probabiliti of it beign selected. For example you have three samples A, B, C, and want them to be selected with probability 50%, 30%, 20%, you can give them weights 0.5, 0.3, 0.2.</p>
+</li>
+<li>
+<p><strong>Reservoir sampling</strong>: is used for randomly sampling k items from a stream of data of unknown size, in a single pass.</p>
+</li>
+<li>
+<p><strong>Importance sampling</strong></p>
+</li>
+</ul>
+<h3 id="resampling">Resampling<a class="headerlink" href="#resampling" title="Permanent link"></a></h3>
+<p>Data-level methods modify the distribution of the training data to reduce the level of imbalance to make it easier for the model to learn.</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/resampling.jpg"></p>
+<p><a href="https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/">&ldquo;Designing Machine Learning Systems&rdquo; by Chip Huyen</a></p>
+<h3 id="cost-sensitive-learning">Cost-sensitive learning<a class="headerlink" href="#cost-sensitive-learning" title="Permanent link"></a></h3>
+<p>is a subfield of machine learning that takes the costs of prediction errors (and potentially other costs) into account when training a machine learning model. It is a field of study that is closely related to the field of imbalanced learning that is concerned with classification on datasets with a skewed class distribution.</p>
+<p>This method diverges from traditional approaches by introducing a cost matrix, explicitly specifying the penalties or benefits for each type of prediction error. The inherent difficulty which cost-sensitive machine learning tackles is that minimizing different kinds of classification errors is a multi-objective optimization problem. </p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/cost_sensitive_learning.jpg"></p>
+<h3 id="focal-loss">Focal Loss<a class="headerlink" href="#focal-loss" title="Permanent link"></a></h3>
+<p>function addresses class imbalance during training in tasks like object detection. Focal loss applies a modulating term to the cross entropy loss in order to focus learning on hard misclassified examples. It is a dynamically scaled cross entropy loss, where the scaling factor decays to zero as confidence in the correct class increases. Intuitively, this scaling factor can automatically down-weight the contribution of easy examples during training and rapidly focus the model on hard examples. </p>
+<p><a href="https://paperswithcode.com/method/focal-loss">https://paperswithcode.com/method/focal-loss</a></p>
+<h3 id="data-lineage">Data lineage<a class="headerlink" href="#data-lineage" title="Permanent link"></a></h3>
+<p>is the story behind the data. It tracks the data from its creation point to the points of consumption. This pipeline of dataflow involves input and output points, transformation and modeling processes the data has undergone, record analysis, visualizations, and several other processes which are constantly tracked and updated.</p>
+<p>The objective of data lineage is to observe the entire lifecycle of data such that the pipeline can be upgraded and leveraged for optimal performance.</p>
+<p>A visual representation can provide transparency to the flow of data from its source systems through transformation, processing, and aggregation steps and into analysis, allowing data engineers to drill down on specific details or check versions and changes over time.</p>
+<p><a href="https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/">&ldquo;Designing Machine Learning Systems&rdquo; by Chip Huyen</a></p>
+<p><a href="https://www.linkedin.com/pulse/types-sampling-machine-learning-chirag-subramanian-hnsoc/">https://www.linkedin.com/pulse/types-sampling-machine-learning-chirag-subramanian-hnsoc/</a></p>
+<h2 id="feature-engeneering">Feature engeneering<a class="headerlink" href="#feature-engeneering" title="Permanent link"></a></h2>
+<h3 id="dealing-with-outliers">Dealing with Outliers<a class="headerlink" href="#dealing-with-outliers" title="Permanent link"></a></h3>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/outlier.gif" height='420'></p>
+<p>In statistics, an outlier is a data point that differs significantly from other observations.An outlier may be due to variability in the measurement or it may indicate experimental error; the latter are sometimes excluded from the data set. An outlier can cause serious problems in statistical analyses.</p>
+<p>Remember that even if a data point is an outlier, its still a data point! Carefully consider your data, its sources, and your goals whenver deciding to remove an outlier. Each case is different!</p>
+<p>How to detect:</p>
+<ul>
+<li>
+<p>visualization tools(Box plot, Scatter plot&hellip;)</p>
+</li>
+<li>
+<p>mathematical functions(Z-Score, IQR score&hellip;)</p>
+</li>
+</ul>
+<p>How to solve:</p>
+<ul>
+<li>
+<p>correct</p>
+</li>
+<li>
+<p>remove</p>
+</li>
+</ul>
+<p><a href="https://www.udemy.com/course/python-for-machine-learning-data-science-masterclass/">scikit-learn course, Section 11: Feature Engineering and Data Preparation</a></p>
+<p><a href="https://en.wikipedia.org/wiki/Outlier">https://en.wikipedia.org/wiki/Outlier</a></p>
+<p><a href="https://www.itl.nist.gov/div898/handbook/prc/section1/prc16.htm">https://www.itl.nist.gov/div898/handbook/prc/section1/prc16.htm</a></p>
+<p><a href="https://towardsdatascience.com/ways-to-detect-and-remove-the-outliers-404d16608dba">https://towardsdatascience.com/ways-to-detect-and-remove-the-outliers-404d16608dba</a></p>
+<h3 id="dealing-with-missing-data">Dealing with Missing Data<a class="headerlink" href="#dealing-with-missing-data" title="Permanent link"></a></h3>
+<h4 id="removing-features-or-removing-rows">Removing Features or Removing Rows<a class="headerlink" href="#removing-features-or-removing-rows" title="Permanent link"></a></h4>
+<p>If only a few rows relative to the size of your dataset are missing some values, then it might just be a good idea to drop those rows. What does this cost you in terms of performace? It essentialy removes potential training/testing data, but if its only a few rows, its unlikely to change performance.</p>
+<p>Sometimes it is a good idea to remove a feature entirely if it has too many null values. However, you should carefully consider why it has so many null values, in certain situations null could just be used as a separate category.</p>
+<p>Take for example a feature column for the number of cars that can fit into a garage. Perhaps if there is no garage then there is a null value, instead of a zero. It probably makes more sense to quickly fill the null values in this case with a zero instead of a null. Only you can decide based off your domain expertise and knowledge of the data set!</p>
+<h4 id="filling-in-data-or-dropping-data">Filling in Data or Dropping Data?<a class="headerlink" href="#filling-in-data-or-dropping-data" title="Permanent link"></a></h4>
+<p>Choose some threshold where we decide it is ok to drop a row if its missing some data (instead of attempting to fill in that missing data point). We will choose 1% as our threshold. This means if less than 1% of the rows are missing this feature, we will consider just dropping that row, instead of dealing with the feature itself. There is no right answer here, just use common sense and your domain knowledge of the dataset, obviously you don&rsquo;t want to drop a very high threshold like 50% , you should also explore correlation to the dataset, maybe it makes sense to drop the feature instead.</p>
+<p>Sometimes you may want to take the approach that above a certain missing percentage threshold, you will simply remove the feature from all the data. For example if 99% of rows are missing a feature, it will not be predictive, since almost all the data does not have any value for it.</p>
+<h4 id="imputation-of-missing-data">Imputation of Missing Data<a class="headerlink" href="#imputation-of-missing-data" title="Permanent link"></a></h4>
+<p>To impute missing data, we need to decide what other filled in (no NaN values) feature most probably relates and is correlated with the missing feature data. Example:</p>
+<div class="highlight"><pre><span class="c1"># Neighborhood: Physical locations within Ames city limits</span>
+<span class="c1"># LotFrontage: Linear feet of street connected to property</span>
+<span class="c1"># We will operate under the assumption that the Lot Frontage is related to what neighborhood a house is in.</span>
+
+<span class="n">df</span><span class="p">[</span><span class="s">&#39;Lot Frontage&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s">&#39;Neighborhood&#39;</span><span class="p">)[</span><span class="s">&#39;Lot Frontage&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="k">lambda</span> <span class="n">val</span><span class="p">:</span> <span class="n">val</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">val</span><span class="o">.</span><span class="n">mean</span><span class="p">()))</span>
+</pre></div>
+
+<p><a href="https://scikit-learn.org/stable/modules/impute.html">https://scikit-learn.org/stable/modules/impute.html</a></p>
+<h3 id="dealing-with-categorical-data">Dealing with Categorical Data<a class="headerlink" href="#dealing-with-categorical-data" title="Permanent link"></a></h3>
+<p>Many machine learning models can not deal with categorical data set as strings. For example linear regression can not apply a a Beta Coefficent to colors like &ldquo;red&rdquo; or &ldquo;blue&rdquo;. Instead we need to convert these categories into &ldquo;dummy&rdquo; variables, otherwise known as &ldquo;one-hot&rdquo; encoding.</p>
+<p>how to solve:</p>
+<ul>
+<li>
+<p>One Hot Encoding</p>
+</li>
+<li>
+<p>Ordinal Encoding</p>
+</li>
+<li>
+<p>Frequency Encoding</p>
+</li>
+<li>
+<p>Target Encoding</p>
+</li>
+<li>
+<p>Probability Ratio Encoding</p>
+</li>
+<li>
+<p>Weight of Evidence Encoder</p>
+</li>
+<li>
+<p>Binning</p>
+</li>
+</ul>
+<p><a href="https://medium.com/geekculture/feature-engineering-for-categorical-data-a77a04b3308">https://medium.com/geekculture/feature-engineering-for-categorical-data-a77a04b3308</a></p>
+<p><a href="https://www.kaggle.com/code/kenjee/categorical-feature-engineering-section-7-1">https://www.kaggle.com/code/kenjee/categorical-feature-engineering-section-7-1</a></p>
+<p><a href="https://www.udemy.com/course/python-for-machine-learning-data-science-masterclass/">scikit-learn course, Section 11: Feature Engineering and Data Preparation</a></p>
+<h3 id="scaling">Scaling<a class="headerlink" href="#scaling" title="Permanent link"></a></h3>
+<p>is a technique to standardize the independent features present in the data in a fixed range.</p>
+<p>It is performed during the data pre-processing to handle highly varying magnitudes or values or units. If feature scaling is not done, then a machine learning algorithm tends to weigh greater values, higher and consider smaller values as the lower values, regardless of the unit of the values.</p>
+<p>Any mathematical transform or technique that shifts the range of a label and/or feature value.</p>
+<p>Common forms of scaling useful in Machine Learning include:</p>
+<ul>
+<li>
+<p>linear scaling, which typically uses a combination of subtraction and division to replace the original value with a number between -1 and +1 or between 0 and 1.</p>
+</li>
+<li>
+<p>logarithmic scaling, which replaces the original value with its logarithm.</p>
+</li>
+<li>
+<p>Z-score normalization, which replaces the original value with a floating-point value representing the number of standard deviations from that feature&rsquo;s mean.</p>
+</li>
+</ul>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/normalizations-at-a-glance-v2.svg"></p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/norm-log-scaling-movie-ratings.svg"></p>
+<p>scikit-learn code:
+<div class="highlight"><pre><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+
+<span class="n">scaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+<span class="n">scaler</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+
+<span class="n">X_train_scaled</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">X_test_scaled</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+</pre></div></p>
+<p><a href="https://www.geeksforgeeks.org/ml-feature-scaling-part-2/">https://www.geeksforgeeks.org/ml-feature-scaling-part-2/</a>
+<a href="https://developers.google.com/machine-learning/glossary#scaling">https://developers.google.com/machine-learning/glossary#scaling</a></p>
+<h3 id="feature-crossing">Feature crossing<a class="headerlink" href="#feature-crossing" title="Permanent link"></a></h3>
+<p>is a technique to combine two or more features to generate new features.</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/feature_crossing.jpg"></p>
+<h3 id="data-leakage">Data Leakage<a class="headerlink" href="#data-leakage" title="Permanent link"></a></h3>
+<p>occurs when information from outside the training dataset is unintentionally utilized during the model creation process. This leakage can have detrimental effects on the model&rsquo;s predictions and its ability to generalize unseen data, resulting in unreliable and inaccurate predictions.</p>
+<p>Data leakage (or leakage) happens when your training data contains information about the target, but similar data will not be available when the model is used for prediction. This leads to high performance on the training set (and possibly even the validation data), but the model will perform poorly in production.</p>
+<p>In other words, leakage causes a model to look accurate until you start making decisions with the model, and then the model becomes very inaccurate.</p>
+<p>There are two main types of leakage: target leakage and train-test contamination.</p>
+<p><a href="https://www.kaggle.com/code/alexisbcook/data-leakage">https://www.kaggle.com/code/alexisbcook/data-leakage</a></p>
+<h3 id="feature-importance">Feature importance<a class="headerlink" href="#feature-importance" title="Permanent link"></a></h3>
+<p>is a step in building a machine learning model that involves calculating the score for all input features in a model to establish the importance of each feature in the decision-making process. The higher the score for a feature, the larger effect it has on the model to predict a certain variable.</p>
+<p>There are many method to measure feature importance. For example you can use SHAP.</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/shap_1.jpg">
+<img src="/home/isidzukuri/Desktop/ml_algorithms/images/shap_2.jpg">
+<img src="/home/isidzukuri/Desktop/ml_algorithms/images/shap_header.svg"></p>
+<p><a href="https://www.kaggle.com/code/wrosinski/shap-feature-importance-with-feature-engineering">https://www.kaggle.com/code/wrosinski/shap-feature-importance-with-feature-engineering</a></p>
+<p><a href="https://shap.readthedocs.io/en/latest/">https://shap.readthedocs.io/en/latest/</a></p>
+<p><a href="https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/">&ldquo;Designing Machine Learning Systems&rdquo; by Chip Huyen</a></p>
 <h2 id="ml-infrastructure">ML infrastructure<a class="headerlink" href="#ml-infrastructure" title="Permanent link"></a></h2>
 <p>Examples:</p>
 <p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/docker_ml.jpg" height="500"></p>
@@ -1384,6 +2058,27 @@ Some of the methods commonly used for binary classification are:</p>
 <h2 id="ml-lifecycle">ML lifecycle<a class="headerlink" href="#ml-lifecycle" title="Permanent link"></a></h2>
 <p>Example:</p>
 <p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/ml_lifecycle.jpg"></p>
+<h2 id="mlops">MLOps<a class="headerlink" href="#mlops" title="Permanent link"></a></h2>
+<h3 id="infrastructure">Infrastructure<a class="headerlink" href="#infrastructure" title="Permanent link"></a></h3>
+<p>Layers:</p>
+<ul>
+<li>
+<p><strong>Storage and compute</strong>: the storage layer is where data is collected and stored. The compute layer provides compute to run your ML workloads such as training a model, computing features, generating features, etc.</p>
+</li>
+<li>
+<p><strong>Resource management</strong>: tools to schedule and orchestrate your workloads to make the most out of your available resources. Examples: Airflow, Kubeflow, Metaflow.</p>
+</li>
+<li>
+<p><strong>ML platform</strong>: tools for aid the development of ML applications uch as mdel stores, feature stores, monitoring tools. Examples: SageMaker, MLflow</p>
+</li>
+<li>
+<p><strong>Development environment</strong></p>
+</li>
+</ul>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/infrastructure_1.jpg"></p>
+<h4 id="development-environment">Development environment<a class="headerlink" href="#development-environment" title="Permanent link"></a></h4>
+<p><a href="https://github.com/nteract/papermill">Ppaermill</a> - is a tool for parameterizing, executing, and analyzing Jupyter Notebooks</p>
+<p><a href="https://eugeneyan.com/writing/experimentation-workflow-with-jupyter-papermill-mlflow/">MLFlow + Papermill</a></p>
 <h2 id="running-ml-on-edge-an-mobile-devices">Running ML on edge an mobile devices<a class="headerlink" href="#running-ml-on-edge-an-mobile-devices" title="Permanent link"></a></h2>
 <p>On-device machine learning is a paradigm shift from traditional cloud-based ML. It allows:</p>
 <ul>
@@ -1418,6 +2113,15 @@ Some of the methods commonly used for binary classification are:</p>
 <p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/sage_maker_neo.jpg"></p>
 <p><a href="https://aws.amazon.com/sagemaker/neo/">https://aws.amazon.com/sagemaker/neo/</a></p>
 <p><a href="https://docs.aws.amazon.com/sagemaker/latest/dg/neo-edge-devices.html">https://docs.aws.amazon.com/sagemaker/latest/dg/neo-edge-devices.html</a></p>
+<h2 id="running-ml-in-browsers">Running ML in browsers<a class="headerlink" href="#running-ml-in-browsers" title="Permanent link"></a></h2>
+<h3 id="compiling-to-js">Compiling to JS<a class="headerlink" href="#compiling-to-js" title="Permanent link"></a></h3>
+<ul>
+<li><a href="https://www.tensorflow.org/js">TensorFlow.js</a></li>
+<li><a href="https://github.com/BrainJS/brain.js">brain.js</a></li>
+<li><a href="https://github.com/cazala/synaptic">Synaptic</a></li>
+</ul>
+<h3 id="compiling-to-wasm">Compiling to WASM<a class="headerlink" href="#compiling-to-wasm" title="Permanent link"></a></h3>
+<p>After model is built in scikit-learn, PyTorch, TensorFlow, or whatever other framework you can compile model to WASM. You get back executable file that you can just use with javascript.</p>
 <h2 id="frameworks">Frameworks<a class="headerlink" href="#frameworks" title="Permanent link"></a></h2>
 <p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/frameworks_comparison.jpg"></p>
 <p><strong>pytorch</strong> vs <strong>tensorflow</strong> <a href="https://www.upwork.com/resources/pytorch-vs-tensorflow">https://www.upwork.com/resources/pytorch-vs-tensorflow</a></p>
@@ -1429,7 +2133,94 @@ Some of the methods commonly used for binary classification are:</p>
 <p><strong>Pandas</strong> is a fast, powerful, flexible and easy to use open source data analysis and manipulation tool</p>
 <p><strong>scikit-learn</strong> - Simple and efficient tools for predictive data analysis. Collection of algorithms. Open-source machine learning library. It features various classification, regression and clustering algorithms including support-vector machines, random forests, gradient boosting, k-means and DBSCAN, and is designed to interoperate with the Python numerical and scientific libraries NumPy and SciPy. Collection of toy datasets generation methods.</p>
 <p><strong>TorchMetricks</strong>  is a collection of 100+ PyTorch metrics implementations and an easy-to-use API to create custom metrics. <a href="https://lightning.ai/docs/torchmetrics/stable/">https://lightning.ai/docs/torchmetrics/stable/</a></p>
+<p><strong>torchinfo</strong> provides information complementary to what is provided by <code>print(your_model)</code> in PyTorch. It prints topology of model, summary, etc <a class="magiclink magiclink-github magiclink-repository" href="https://github.com/TylerYep/torchinfo" title="GitHub Repository: TylerYep/torchinfo">TylerYep/torchinfo</a></p>
+<p><strong>TensorBoard</strong> provides the visualization and tooling needed for machine learning experimentation. Experiment tracking, performance plots, etc. <a href="https://www.tensorflow.org/tensorboard">https://www.tensorflow.org/tensorboard</a></p>
+<p><strong>Gradio</strong> -  is the fastest way to demo your machine learning model with a friendly web interface <a href="https://www.gradio.app/">https://www.gradio.app/</a></p>
+<p><strong>alibi-detect</strong> - The package aims to cover both online and offline detectors for tabular data, text, images and time series. Both TensorFlow and PyTorch backends are supported for drift detection. <a class="magiclink magiclink-github magiclink-repository" href="https://github.com/SeldonIO/alibi-detect?tab=readme-ov-file" title="GitHub Repository: SeldonIO/alibi-detect?tab=readme-ov-file">SeldonIO/alibi-detect?tab=readme-ov-file</a></p>
+<p><strong>great_expectations</strong> - data validation <a class="magiclink magiclink-github magiclink-repository" href="https://github.com/great-expectations/great_expectations" title="GitHub Repository: great-expectations/great_expectations">great-expectations/great_expectations</a></p>
+<h2 id="performance">Performance<a class="headerlink" href="#performance" title="Permanent link"></a></h2>
+<h3 id="batching">Batching<a class="headerlink" href="#batching" title="Permanent link"></a></h3>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/batch_queries.jpg"></p>
+<h3 id="quantization">Quantization<a class="headerlink" href="#quantization" title="Permanent link"></a></h3>
+<p>Quantization is a technique to reduce the computational and memory costs of running inference by representing the weights and activations with low-precision data types like 8-bit integer (int8) instead of the usual 32-bit floating point (float32).</p>
+<p>Reducing the number of bits means the resulting model requires less memory storage, consumes less energy (in theory), and operations like matrix multiplication can be performed much faster with integer arithmetic. It also allows to run models on embedded devices, which sometimes only support integer data types.</p>
+<p><a href="https://huggingface.co/docs/optimum/concept_guides/quantization">https://huggingface.co/docs/optimum/concept_guides/quantization</a></p>
+<h3 id="knowledge-distillation">Knowledge Distillation<a class="headerlink" href="#knowledge-distillation" title="Permanent link"></a></h3>
+<p>Knowledge distillation is a technique that enables knowledge transfer from large, computationally expensive models to smaller ones without losing validity. This allows for deployment on less powerful hardware, making evaluation faster and more efficient.</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/distillation_output_loss.png"></p>
+<p><a href="https://pytorch.org/tutorials/beginner/knowledge_distillation_tutorial.html">https://pytorch.org/tutorials/beginner/knowledge_distillation_tutorial.html</a></p>
+<h3 id="using-ml-to-optimize-ml-models">Using ML to optimize ML models<a class="headerlink" href="#using-ml-to-optimize-ml-models" title="Permanent link"></a></h3>
+<p>Apache TVM is a compiler stack for deep learning systems. It is designed to close the gap between the productivity-focused deep learning frameworks, and the performance- and efficiency-focused hardware backends. TVM works with deep learning frameworks to provide end to end compilation to different backends.</p>
+<p>AutoTVM offers a way to tune models and operators by providing a template schedule, and searcing the parameter space defined by the template. These how-tos demonstrate how to write template schedules and optimize them for a variety of different hardware platforms. <a href="https://daobook.github.io/tvm/docs/how_to/tune_with_autotvm/index.html">Read more</a></p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/ml_tune_ml.jpg"></p>
+<p><a href="https://daobook.github.io/tvm/docs/how_to/tune_with_autotvm/index.html">https://daobook.github.io/tvm/docs/how_to/tune_with_autotvm/index.html</a></p>
+<p><a href="https://tvm.apache.org/docs/reference/api/python/autotvm.html">https://tvm.apache.org/docs/reference/api/python/autotvm.html</a></p>
+<p><a class="magiclink magiclink-github magiclink-repository" href="https://github.com/apache/tvm" title="GitHub Repository: apache/tvm">apache/tvm</a></p>
+<p><a href="https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/">&ldquo;Designing Machine Learning Systems&rdquo; by Chip Huyen</a></p>
+<h2 id="data-distribution-shifts-and-monitoring">Data distribution shifts and monitoring<a class="headerlink" href="#data-distribution-shifts-and-monitoring" title="Permanent link"></a></h2>
+<h3 id="data-drift">Data drift<a class="headerlink" href="#data-drift" title="Permanent link"></a></h3>
+<p>is a change in the statistical properties and characteristics of the input data. It occurs when a machine learning model is in production, as the data it encounters deviates from the data the model was initially trained on or earlier production data. </p>
+<p>This shift in input data distribution can lead to a decline in the model&rsquo;s performance. The reason is, when you create a machine learning model, you can expect it to perform well on data similar to the data used to train it. However, it might struggle to make accurate predictions or decisions if the data keeps changing and the model cannot generalize beyond what it has seen in training.</p>
+<p>In simple terms, data drift is a change in the model inputs the model is not trained to handle. Detecting and addressing data drift is vital to maintaining ML model reliability in dynamic settings.</p>
+<p><a href="https://www.evidentlyai.com/ml-in-production/data-drift">https://www.evidentlyai.com/ml-in-production/data-drift</a></p>
+<p><a class="magiclink magiclink-github magiclink-repository" href="https://github.com/SeldonIO/alibi-detect?tab=readme-ov-file" title="GitHub Repository: SeldonIO/alibi-detect?tab=readme-ov-file">SeldonIO/alibi-detect?tab=readme-ov-file</a></p>
+<h3 id="data-validation">Data validation<a class="headerlink" href="#data-validation" title="Permanent link"></a></h3>
+<p>Data validation is a term used to describe the process of checking the accuracy and quality of source data to ensure accurate output. Implementing data validation processes for a ML model helps to mitigate “garbage in = garbage out” scenarios, where poor quality data produces a poorly functioning model.</p>
+<p><a class="magiclink magiclink-github magiclink-repository" href="https://github.com/great-expectations/great_expectations" title="GitHub Repository: great-expectations/great_expectations">great-expectations/great_expectations</a></p>
+<p><a class="magiclink magiclink-github magiclink-repository" href="https://github.com/awslabs/deequ" title="GitHub Repository: awslabs/deequ">awslabs/deequ</a></p>
+<h2 id="continual-learning">Continual learning<a class="headerlink" href="#continual-learning" title="Permanent link"></a></h2>
+<p>training paradigm where a model is updated with some amount of incomming samples or baches of samples(1+&hellip;512+&hellip;1024+....) with a periodicity (immediately, every minute, every 5 minutes, very hour, once month, once a year&hellip;). </p>
+<p>The updated model shouldnt be deployed until its been evalueated. This means that you shouldnt make chanches to existing model directly. Instead, you create replica and update this replica with new data and only replace existing model with updated replica if updated replica proves to be better. The existing model is called the champion model, and the updated replica, the chalanger.</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/continual_learning.jpg" height="500"></p>
+<h3 id="stateless-retraining-vs-statefull-training">Stateless Retraining vs Statefull Training<a class="headerlink" href="#stateless-retraining-vs-statefull-training" title="Permanent link"></a></h3>
+<p><strong>Stateless Retraining</strong> - the model is trained from scratch each time.</p>
+<p><strong>Statefull Training</strong> - the model continues learnig on new data.</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/stateless_vs_statfull.jpg" height="385"></p>
+<h3 id="test-in-production">Test in production<a class="headerlink" href="#test-in-production" title="Permanent link"></a></h3>
+<ul>
+<li>
+<p><strong>Shadow deployment</strong>: trafic routed to champion and chalenger, but only champion is serving clients</p>
+</li>
+<li>
+<p><strong>A/B testing</strong>: purpose is usually to see users&rsquo; response (In a way, how much they like it). But you know that the new version works. So, you actually send randomly both versions of the application to all of them. It can be 50-50, 80-20, 90-10, anything. You might want to see which version attracts more clients and stuff like that.</p>
+</li>
+<li>
+<p><strong>Canary release</strong> is more focused on how well works the new feature. Or if it actually works. It usually will be 90-10, 80-20, A &gt;&gt; B. Never 50-50, because if it goes wrong, you don&rsquo;t want half of your users to have a bad experience. So you are not positive if the new version is going to work as expected.</p>
+</li>
+<li>
+<p><strong>Interleaving experiments</strong></p>
+</li>
+</ul>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/interleaving_experiments_3.jpg">
+<img src="/home/isidzukuri/Desktop/ml_algorithms/images/interleaving_experiments.jpg" height="480">
+<img src="/home/isidzukuri/Desktop/ml_algorithms/images/interleaving_experiments_2.jpg"></p>
+<p><a href="https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/">&ldquo;Designing Machine Learning Systems&rdquo; by Chip Huyen</a></p>
+<p><a href="https://dl.acm.org/doi/fullHtml/10.1145/3543873.3587572">https://dl.acm.org/doi/fullHtml/10.1145/3543873.3587572</a></p>
+<h2 id="glossary">Glossary<a class="headerlink" href="#glossary" title="Permanent link"></a></h2>
+<p><strong>Embedding</strong> - learnable representation (start with random numbers and improve over time)</p>
+<p><strong>Multilayer perceptron</strong> -  (MLP) is a name for a modern feedforward artificial neural network, consisting of fully connected neurons with a nonlinear activation function, organized in at least three layers, notable for being able to distinguish data that is not linearly separable.[1]</p>
+<p>Modern feedforward networks are trained using the backpropagation method[2][3][4][5][6] and are colloquially referred to as the &ldquo;vanilla&rdquo; neural networks.[7]</p>
+<p>MLPs grew out of an effort to improve single-layer perceptrons, which could only distinguish linearly separable data. A perceptron traditionally used a Heaviside step function as its nonlinear activation function. However, the backpropagation algorithm requires that modern MLPs use continuous activation functions such as sigmoid or ReLU.</p>
+<p><a href="https://en.wikipedia.org/wiki/Multilayer_perceptron">https://en.wikipedia.org/wiki/Multilayer_perceptron</a></p>
+<p><strong>Residual Connection</strong> - are a type of skip-connection that learn residual functions with reference to the layer inputs, instead of learning unreferenced functions. </p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/residual_connection.png"  height="200"></p>
+<p><strong>Learning rate warmup</strong> - start with small learning rate and warmup to sertain value.<a href="https://paperswithcode.com/method/linear-warmup">https://paperswithcode.com/method/linear-warmup</a></p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/lr_warmup.png" height="250"></p>
+<p><strong>Learning rate decay</strong> - turn down lr closer to better results</p>
+<p><strong>Gragient clipping</strong> - cut some gradients <a href="https://paperswithcode.com/method/gradient-clipping">https://paperswithcode.com/method/gradient-clipping</a></p>
+<p><strong>Multi-head Attention</strong> is a module for attention mechanisms which runs through an attention mechanism several times in parallel. The independent attention outputs are then concatenated and linearly transformed into the expected dimension. Intuitively, multiple attention heads allows for attending to parts of the sequence differently (e.g. longer-term dependencies versus shorter-term dependencies). <a href="https://paperswithcode.com/method/multi-head-attention">https://paperswithcode.com/method/multi-head-attention</a></p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/multi-head-attention.png" height="250"></p>
+<p><strong>Cardinality</strong> is a mathematics term that refers to the number of unique elements in a set. It can be categorized into high and low cardinality. High cardinality is present when a column or row in a database has many distinct values, whereas low cardinality involves many repeated values.</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/cardinality.png" height="350"></p>
+<p><a href="https://www.splunk.com/en_us/blog/learn/cardinality-metrics-monitoring-observability.html">https://www.splunk.com/en_us/blog/learn/cardinality-metrics-monitoring-observability.html</a></p>
+<h2 id="math-symbols">Math symbols<a class="headerlink" href="#math-symbols" title="Permanent link"></a></h2>
+<p>∈ - elements</p>
+<p>R - real numbers</p>
 <h2 id="useful-links">Useful links<a class="headerlink" href="#useful-links" title="Permanent link"></a></h2>
+<p>Machine Learning Glossary:</p>
+<ul>
+<li><a href="https://developers.google.com/machine-learning/glossary">https://developers.google.com/machine-learning/glossary</a></li>
+</ul>
 <p>Datasets, models:</p>
 <ul>
 <li>
@@ -1442,6 +2233,12 @@ Some of the methods commonly used for binary classification are:</p>
 <p><a href="https://www.kaggle.com/">https://www.kaggle.com/</a></p>
 </li>
 <li>
+<p><a href="https://paperswithcode.com/sota">https://paperswithcode.com/sota</a></p>
+</li>
+<li>
+<p><a class="magiclink magiclink-github magiclink-mention" href="https://github.com/satellite-image-deep-learning" title="GitHub User: satellite-image-deep-learning">@satellite-image-deep-learning</a> [topological, satelite images]</p>
+</li>
+<li>
 <p><a href="https://en.wikipedia.org/wiki/MNIST_database">https://en.wikipedia.org/wiki/MNIST_database</a> [images]</p>
 </li>
 <li>
@@ -1449,6 +2246,9 @@ Some of the methods commonly used for binary classification are:</p>
 </li>
 <li>
 <p><a href="https://www.image-net.org/">https://www.image-net.org/</a> [images]</p>
+</li>
+<li>
+<p><a href="https://github.com/lucidrains?tab=repositories">https://github.com/lucidrains?tab=repositories</a></p>
 </li>
 </ul>
 <p>Courses:</p>
@@ -1460,6 +2260,9 @@ Some of the methods commonly used for binary classification are:</p>
 <p><a href="https://www.udemy.com/course/pytorch-for-deep-learning/">https://www.udemy.com/course/pytorch-for-deep-learning/</a></p>
 </li>
 <li>
+<p><a href="https://www.udemy.com/course/python-for-machine-learning-data-science-masterclass/">https://www.udemy.com/course/python-for-machine-learning-data-science-masterclass/</a></p>
+</li>
+<li>
 <p><a href="https://www.learnpytorch.io/">https://www.learnpytorch.io/</a></p>
 </li>
 </ul>
@@ -1469,13 +2272,57 @@ Some of the methods commonly used for binary classification are:</p>
 </ul>
 <p>Articles:</p>
 <ul>
-<li><a href="https://arxiv.org/">https://arxiv.org/</a></li>
+<li>
+<p><a href="https://arxiv.org/">https://arxiv.org/</a></p>
+</li>
+<li>
+<p><a href="https://eugeneyan.com/">https://eugeneyan.com/</a></p>
+</li>
+<li>
+<p><a href="https://jalammar.github.io/">https://jalammar.github.io/</a></p>
+</li>
+</ul>
+<p>Books:</p>
+<ul>
+<li><a href="https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/">&ldquo;Designing Machine Learning Systems&rdquo; by Chip Huyen</a></li>
+</ul>
+<p>Cheatsheets:</p>
+<ul>
+<li>
+<p><a href="/home/isidzukuri/Desktop/ml_algorithms/pdf/ML%2BCheat%2BSheet_2.pdf">ML model selection #1</a></p>
+</li>
+<li>
+<p><a href="/home/isidzukuri/Desktop/ml_algorithms/pdf/Model_Selection_in_Machine_Learning_for_Different_Models.avif">ML model selection #2</a></p>
+</li>
+<li>
+<p><a href="https://docs.aws.amazon.com/sagemaker/latest/dg/algos.html">ML model selection #3</a></p>
+</li>
 </ul>
 <p>Online NN builder:</p>
 <ul>
-<li><a href="https://playground.tensorflow.org/">https://playground.tensorflow.org/</a></li>
+<li>
+<p><a href="https://playground.tensorflow.org/">https://playground.tensorflow.org/</a></p>
+</li>
+<li>
+<p><a href="https://poloclub.github.io/transformer-explainer/">https://poloclub.github.io/transformer-explainer/</a></p>
+</li>
 </ul>
 <p>Performance:</p>
 <ul>
 <li><a href="https://horace.io/brrr_intro.html">https://horace.io/brrr_intro.html</a></li>
+</ul>
+<p>Social media:</p>
+<ul>
+<li>
+<p><a href="https://x.com/_akhaliq">https://x.com/_akhaliq</a></p>
+</li>
+<li>
+<p><a href="https://x.com/NeurIPSConf">https://x.com/NeurIPSConf</a></p>
+</li>
+<li>
+<p><a href="https://x.com/iclr_conf">https://x.com/iclr_conf</a></p>
+</li>
+<li>
+<p><a href="https://x.com/icmlconf">https://x.com/icmlconf</a></p>
+</li>
 </ul></article></body></html>
