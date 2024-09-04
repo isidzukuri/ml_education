@@ -375,6 +375,7 @@ Deep learning (NN) is better for unstructured data (video, audio, etc)
 is a category of machine learning that uses labeled datasets to train algorithms to predict outcomes and recognize patterns.
 
 #### Linear Regression
+[regression]
 
 is used to predict the value of a variable based on the value of another variable. The variable you want to predict is called the dependent variable. The variable you are using to predict the other variable's value is called the independent variable.
 
@@ -438,6 +439,7 @@ RMSE = np.sqrt(MSE) #import numpy as np
 ```
 
 #### Polynomial Regression
+[regression]
 
 is a form of regression analysis in which higher-degree functions of the independent variable, such as squares and cubes, are used to fit the data. It allows for more complex relationships between variables compared to linear regression.
 
@@ -491,10 +493,9 @@ model.predict(new_data_item_featres)
 ```
 
 #### Ridge Regression
+[regression]
 
 is a statistical regularization technique. It corrects for overfitting on training data in machine learning models. Ridge regression—also known as L2 regularization—is one of several types of regularization for linear regression models.
-
-
 
 In machine learning, ridge regression helps reduce overfitting that results from model complexity. Model complexity can be due to:
 
@@ -554,6 +555,7 @@ https://scikit-learn.org/stable/modules/linear_model.html#ridge-complexity
 
 
 #### Lasso
+[regression]
 
 is a linear model that estimates sparse coefficients. It is useful in some contexts due to its tendency to prefer solutions with fewer non-zero coefficients, effectively reducing the number of features upon which the given solution is dependent. For this reason, Lasso and its variants are fundamental to the field of compressed sensing. Under certain conditions, it can recover the exact set of non-zero coefficients.
 
@@ -579,6 +581,7 @@ https://www.ibm.com/topics/lasso-regression
 
 
 #### Elastic Net
+[regression]
 
 combines the penalties of ridge regression and lasso in an attempt to get the best of both.
 
@@ -609,6 +612,7 @@ https://scikit-learn.org/stable/modules/linear_model.html#elastic-net
 
 
 #### Logistic regression
+[classification]
 
 widely used for binary classification tasks, such as identifying whether an email is spam or not and diagnosing diseases by assessing the presence or absence of specific conditions based on patient test results. This approach utilizes the logistic (or sigmoid) function to transform a linear combination of input features into a probability value ranging between 0 and 1. This probability indicates the likelihood that a given input corresponds to one of two predefined categories. The essential mechanism of logistic regression is grounded in the logistic function's ability to model the probability of binary outcomes accurately. With its distinctive S-shaped curve, the logistic function effectively maps any real-valued number to a value within the 0 to 1 interval. This feature renders it particularly suitable for binary classification tasks, such as sorting emails into "spam" or "not spam". By calculating the probability that the dependent variable will be categorized into a specific group, logistic regression provides a probabilistic framework that supports informed decision-making.
 
@@ -632,9 +636,9 @@ log_model.fit(scaled_X_train,y_train)
 
 y_pred = log_model.predict(scaled_X_test)
 
-from sklearn.metrics import accuracy_score,confusion_matrix,classification_report,plot_confusion_matrix
-accuracy_score(y_test,y_pred)
-confusion_matrix(y_test,y_pred)
+from sklearn.metrics import accuracy_score,confusion_matrix,classification_report
+print(f"accuracy_score: {accuracy_score(y_test,y_pred)}")
+print(f"confusion_matrix: \r\n{confusion_matrix(y_test,y_pred)}")
 print(classification_report(y_test,y_pred))
 ```
 
@@ -669,8 +673,8 @@ from sklearn.metrics import accuracy_score,confusion_matrix,classification_repor
 y_pred = grid_model.predict(scaled_X_test)
 
 from sklearn.metrics import accuracy_score,confusion_matrix,classification_report,plot_confusion_matrix
-accuracy_score(y_test,y_pred)
-confusion_matrix(y_test,y_pred)
+print(f"accuracy_score: {accuracy_score(y_test,y_pred)}")
+print(f"confusion_matrix: \r\n{confusion_matrix(y_test,y_pred)}")
 print(classification_report(y_test,y_pred))
 ```
 
@@ -680,14 +684,8 @@ https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticR
 
 https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
 
-
-
-
-### Unsupervised learning 
-
- in artificial intelligence is a type of machine learning that learns from data without human supervision.
-
 ### KNN algorithm
+[classification, regression]
 
 ![](images/knn.gif)
 
@@ -698,42 +696,389 @@ While there are several distance measures that you can choose from, this article
 
 - **Euclidean distance** (p=2): This is the most commonly used distance measure, and it is limited to real-valued vectors. Using the below formula, it measures a straight line between the query point and the other point being measured.
 
-<img src="images/knn_d1.png" height="300">
+<img src="images/knn_d1.png" height="250">
 
 
 - **Manhattan distance** (p=1): This is also another popular distance metric, which measures the absolute value between two points. It is also referred to as taxicab distance or city block distance as it is commonly visualized with a grid, illustrating how one might navigate from one address to another via city streets.
 
-<img src="images/knn_d2.png" height="300">
+<img src="images/knn_d2.png" height="250">
 
 
 - **Minkowski distance** : This distance measure is the generalized form of Euclidean and Manhattan distance metrics. The parameter, p, in the formula below, allows for the creation of other distance metrics. Euclidean distance is represented by this formula when p is equal to two, and Manhattan distance is denoted with p equal to one.
 
-<img src="images/knn_d3.png" height="300">
+<img src="images/knn_d3.png" height="250">
 
 - **Hamming distance** : This technique is used typically used with Boolean or string vectors, identifying the points where the vectors do not match. As a result, it has also been referred to as the overlap metric. This can be represented with the following formula:
 
-<img src="images/knn_d4.png" height="300">
+<img src="images/knn_d4.png" height="250">
 
+```python
+X = [[0], [1], [2], [3]]
+y = [0, 0, 1, 1]
+from sklearn.neighbors import KNeighborsClassifier
+model = KNeighborsClassifier(n_neighbors=3)
+model.fit(X, y)
+model.predict([[1.1]]) # [0]
+model.predict_proba([[0.9]]) # [[0.666... 0.333...]]
+```
 
 https://www.ibm.com/topics/knn
 
+https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html
 
-### k-means clustering
+#### Support Vector Machines
+[classification, regression, outliers detection]
 
-K-means is an unsupervised learning method for clustering data points. The algorithm iteratively divides data points into K clusters by minimizing the variance in each cluster.
+are a set of supervised learning methods used for classification, regression and outliers detection.
+
+<img src="images/svm.png">
+<img src="images/svc2.png">
+
+The advantages of support vector machines are:
+
+- Effective in high dimensional spaces.
+- Still effective in cases where number of dimensions is greater than the number of samples.
+- Uses a subset of training points in the decision function (called support vectors), so it is also memory efficient.
+- Versatile: different Kernel functions can be specified for the decision function. Common kernels are provided, but it is also possible to specify custom kernels.
+
+The disadvantages of support vector machines include:
+
+- If the number of features is much greater than the number of samples, avoid over-fitting in choosing Kernel functions and regularization term is crucial.
+
+```python
+from sklearn.svm import SVC
+svc = SVC()
+from sklearn.model_selection import GridSearchCV
+
+param_grid = {'C':[0.001,0.01,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,1], #tune here. Generate with `np.arange(0.6, 0.8, 0.01)`
+              'gamma':['scale','auto'], 
+              'kernel': ['linear', 'poly', 'rbf', 'sigmoid'],
+              'class_weight': ['balanced', None]}
+
+grid = GridSearchCV(svc,param_grid, scoring='accuracy', verbose=2)
+grid.fit(scaled_X_train,y_train)
+
+print(f"Best hyper params: {grid.best_params_}")
+
+y_pred = grid.predict(scaled_X_test)
+
+from sklearn.metrics import accuracy_score,confusion_matrix,classification_report
+print(f"accuracy_score: {accuracy_score(y_test,y_pred)}")
+print(f"confusion_matrix: \r\n{confusion_matrix(y_test,y_pred)}")
+print(classification_report(y_test,y_pred))
+```
+
+https://scikit-learn.org/stable/modules/svm.html
+
+
+#### Decision tree 
+[classification, regression]
+
+**Classification criteria**:
+
+- Gini
+- Log Loss or Entropy
+
+**Regression criteria**:
+
+- Mean Squared Error
+- Half Poisson deviance
+- Mean Absolute Error
+
+Tree algorithms: ID3, C4.5, C5.0 and CART 
+
+<img src="images/sphx_glr_plot_tree_regression_001.png">
+
+<img src="images/tree_plot.jpg">
+
+```python
+from sklearn.tree import DecisionTreeClassifier
+model = DecisionTreeClassifier()
+model.fit(X_train,y_train)
+y_pred = model.predict(X_test)
+
+from sklearn.metrics import accuracy_score,confusion_matrix,classification_report
+print(f"accuracy_score: {accuracy_score(y_test,y_pred)}")
+print(f"confusion_matrix: \r\n{confusion_matrix(y_test,y_pred)}")
+print(classification_report(y_test,y_pred))
+```
+
+https://scikit-learn.org/stable/modules/tree.html
+
+
+#### Random Forest
+[classification, regression]
+
+combines the output of multiple decision trees to reach a single result. It handles both classification and regression problems. 
+
+<img src="images/random_forest.png" height="410px">
+
+Classification example:
+```python
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import GridSearchCV
+
+n_estimators=[64,100,128,200]
+max_features= [2,3,4]
+bootstrap = [True,False]
+
+param_grid = {'n_estimators':n_estimators,
+             'max_features':max_features,
+             'bootstrap':bootstrap}
+
+rfc = RandomForestClassifier()
+grid = GridSearchCV(rfc,param_grid)
+grid.fit(X_train,y_train)
+
+grid.best_params_ #{'bootstrap': True, 'max_features': 2, 'n_estimators': 64}
+
+y_pred = grid.predict(X_test)
+
+from sklearn.metrics import accuracy_score,confusion_matrix,classification_report
+print(f"accuracy_score: {accuracy_score(y_test,y_pred)}")
+print(f"confusion_matrix: \r\n{confusion_matrix(y_test,y_pred)}")
+print(classification_report(y_test,y_pred))
+```
+
+**How to pick right number of trees?**
+
+Start with grid search and fine tune with plots. After certain quantity of trees in forest accuracy or amount of misclassifications(errors) will reach threshold,
+there will be no sense to add more trees. It is visible on plots:
+
+```python
+from sklearn.metrics import accuracy_score
+
+errors = []
+misclassifications = []
+
+for n in range(1,64):
+    rfc = RandomForestClassifier( n_estimators=n,bootstrap=True,max_features= 2)
+    rfc.fit(X_train,y_train)
+    preds = rfc.predict(X_test)
+    err = 1 - accuracy_score(preds,y_test)
+    n_missed = np.sum(preds != y_test) # watch the video to understand this line!!
+    errors.append(err)
+    misclassifications.append(n_missed)
+
+plt.plot(range(1,64),errors)
+plt.plot(range(1,64),misclassifications)
+```
+
+Regression example:
+```python
+from sklearn.ensemble import RandomForestRegressor
+
+trees = 50
+model = RandomForestRegressor(n_estimators=trees)
+
+model.fit(X_train,y_train)
+
+y_preds = model.predict(X_test)
+
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+MAE = mean_absolute_error(y_test, y_preds)
+MSE = mean_squared_error(y_test, y_preds)
+RMSE = np.sqrt(MSE) #import numpy as np
+```
+
+https://www.ibm.com/topics/random-forest
+
+https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+
+
+#### AdaBoost
+[classification, regression]
+
+An AdaBoost **classifier** is a meta-estimator that begins by fitting a classifier on the original dataset and then fits additional copies of the classifier on the same dataset but where the weights of incorrectly classified instances are adjusted such that subsequent classifiers focus more on difficult cases.
+
+An AdaBoost **regressor** is a meta-estimator that begins by fitting a regressor on the original dataset and then fits additional copies of the regressor on the same dataset but where the weights of instances are adjusted according to the error of the current prediction. As such, subsequent regressors focus more on difficult cases.
+
+
+<img src="images/ada_boost_process.jpg">
+
+<img src="images/ada_boost_process_2.jpg">
+
+
+Classifier example:
+```python
+from sklearn.ensemble import AdaBoostClassifier
+
+model = AdaBoostClassifier(n_estimators=20)
+model.fit(X_train,y_train)
+
+y_preds = model.predict(X_test)
+
+from sklearn.metrics import accuracy_score,confusion_matrix,classification_report
+print(f"accuracy_score: {accuracy_score(y_test,y_pred)}")
+print(f"confusion_matrix: \r\n{confusion_matrix(y_test,y_pred)}")
+print(classification_report(y_test,y_pred))
+```
+
+https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.AdaBoostClassifier.html
+
+https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.AdaBoostRegressor.html
+
+
+#### Gradient boosting
+[classification, regression]
+
+is a type of machine learning boosting. It relies on the intuition that the best possible next model, when combined with previous models, minimizes the overall prediction error. The key idea is to set the target outcomes for this next model in order to minimize the error.
+
+<img src="images/gradient_boosting.png" height="350px">
+
+```python
+from sklearn.model_selection import GridSearchCV
+param_grid = {"n_estimators":[1,5,10,20,40,100],'max_depth':[3,4,5,6]}
+model = GradientBoostingClassifier()
+grid = GridSearchCV(model,param_grid)
+
+grid.fit(X_train,y_train)
+
+y_preds = grid.predict(X_test)
+
+from sklearn.metrics import accuracy_score,confusion_matrix,classification_report
+print(f"accuracy_score: {accuracy_score(y_test,y_pred)}")
+print(f"confusion_matrix: \r\n{confusion_matrix(y_test,y_pred)}")
+print(classification_report(y_test,y_pred))
+```
+
+https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingClassifier.html
+
+https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.GradientBoostingRegressor.html
+
+
+#### Text classification
+
+```python
+y = df['airline_sentiment']
+X = df['text']
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=101)
+
+# vectorization
+from sklearn.feature_extraction.text import TfidfVectorizer
+tfidf = TfidfVectorizer(stop_words='english')
+tfidf.fit(X_train)
+X_train_tfidf = tfidf.transform(X_train)
+X_test_tfidf = tfidf.transform(X_test)
+
+
+# train model on vector. 
+# Its possible to use any classifier. For example: MultinomialNB, LogisticRegression, LinearSVC...
+
+from sklearn.naive_bayes import MultinomialNB
+nb = MultinomialNB()
+nb.fit(X_train_tfidf,y_train)
+
+y_pred = model.predict(X_test_tfidf)
+
+from sklearn.metrics import accuracy_score,confusion_matrix,classification_report
+print(f"accuracy_score: {accuracy_score(y_test,y_pred)}")
+print(f"confusion_matrix: \r\n{confusion_matrix(y_test,y_pred)}")
+print(classification_report(y_test,y_pred))
+```
+
+https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html
+
+https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.MultinomialNB.html
+
+
+### Unsupervised learning 
+
+ in artificial intelligence is a type of machine learning that learns from data without human supervision.
+
+
+#### k-means clustering
+[clustering]
+
+Distance based. K-means is an unsupervised learning method for clustering data points. The algorithm iteratively divides data points into K clusters by minimizing the variance in each cluster. [Visualization](https://www.naftaliharris.com/blog/visualizing-k-means-clustering/)
 
 <img src="images/k_means.gif" height="300">
+
+```python
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+scaled_X = scaler.fit_transform(X)
+
+from sklearn.cluster import KMeans
+cluster_labels = model.fit_predict(scaled_X)
+
+X['Cluster'] = cluster_labels
+```
+
+**Choosing K Value**
+
+```python
+ssd = []
+for k in range(2,10):
+    model = KMeans(n_clusters=k)
+    model.fit(scaled_X)
+    #Sum of squared distances of samples to their closest cluster center.
+    ssd.append(model.inertia_)
+
+plt.plot(range(2,10),ssd,'o--')
+plt.xlabel("K Value")
+plt.ylabel(" Sum of Squared Distances")
+```
+When diff is smallest, `6` looks good here:
+
+<img src="images/k_means_diff.jpg" height="300">
+
+```python
+pd.Series(ssd).diff()
+# 0             NaN
+# 1   -99004.700248
+# 2   -99285.008576
+# 3   -50373.800535
+# 4   -76061.758683
+# 5   -12598.390287
+# 6   -93007.868047
+# 7   -33768.137795
+```
 
 https://www.w3schools.com/python/python_ml_k-means.asp
 
 https://en.wikipedia.org/wiki/K-means_clustering
 
+https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html
 
-### Hotspots
+
+
+#### DBSCAN
+(Density-Based Spatial Clustering of Applications with Noise), captures the insight that clusters are dense groups of points. The idea is that if a particular point belongs to a cluster, it should be near to lots of other points in that cluster.
+
+It works like this: First we choose two parameters, a positive number epsilon and a natural number minPoints. We then begin by picking an arbitrary point in our dataset. If there are more than minPoints points within a distance of epsilon from that point, (including the original point itself), we consider all of them to be part of a "cluster". We then expand that cluster by checking all of the new points and seeing if they too have more than minPoints points within a distance of epsilon, growing the cluster recursively if so.
+
+Eventually, we run out of points to add to the cluster. We then pick a new arbitrary point and repeat the process. Now, it's entirely possible that a point we pick has fewer than minPoints points in its epsilon ball, and is also not a part of any other cluster. If that is the case, it's considered a "noise point" not belonging to any cluster. 
+[Visualization](https://www.naftaliharris.com/blog/visualizing-dbscan-clustering/)
+
+<img src="images/dbscan.jpg">
+
+0 = first categiry, 1 = second category, -1 = ouyliers
+
+```python
+from sklearn.cluster import DBSCAN
+
+model = DBSCAN(eps=0.5, min_samples=5)
+labels = model.fit_predict(data)
+```
+
+`eps` - the maximum distance between two samples for one to be considered as in the neighborhood of the other. The number of samples (or total weight) in a neighborhood for a point to be considered as a core point. This includes the point itself.
+
+`min_samples` - the number of samples (or total weight) in a neighborhood for a point to be considered as a core point.
+**How to pick `min_samples`**:
+`min_samples` starting point may be two times number of dimensions of data.
+
+`metric` - the metric to use when calculating distance between instances in a feature array.
+
+https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html
+
+#### Hotspots
 <img src="images/hotspots.jpg" height="420">
 
 
-### Random Cut Forest
+#### Random Cut Forest
 <img src="images/random_cut_forest.jpg" height="420">
 
 
@@ -751,6 +1096,14 @@ Reinforcement learning deals with a unique problem setup where an arbitrary agen
 <img src="images/rl_cycle.png" height="420">
 
 https://en.wikipedia.org/wiki/Reinforcement_learning
+
+
+#### A Taxonomy of RL Algorithms
+<img src="images/rl_algorithms_9_15.svg" height="420">
+
+https://spinningup.openai.com/en/latest/spinningup/rl_intro2.html#a-taxonomy-of-rl-algorithms
+
+
 
 #### Q learning
 
@@ -1269,6 +1622,28 @@ is a technique to combine two or more features to generate new features.
 
 <img src="images/feature_crossing.jpg">
 
+### Principal Component Analysis (PCA)
+
+is a dimensionality reduction method that is often used to reduce the dimensionality of large data sets, by transforming a large set of variables into a smaller one that still contains most of the information in the large set.
+
+```python
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+scaled_X = scaler.fit_transform(df)
+
+from sklearn.decomposition import PCA
+
+pca = PCA(n_components=2)
+principal_components = pca.fit_transform(scaled_X)
+
+```
+
+https://scikit-learn.org/stable/auto_examples/decomposition/plot_pca_iris.html
+
+https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html
+
+https://builtin.com/data-science/step-step-explanation-principal-component-analysis
 
 ### Data Leakage
 
@@ -1301,6 +1676,137 @@ https://shap.readthedocs.io/en/latest/
 
 ["Designing Machine Learning Systems" by Chip Huyen](https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/)
 
+## Performance
+
+### Batching
+
+<img src="images/batch_queries.jpg">
+
+### Quantization
+
+Quantization is a technique to reduce the computational and memory costs of running inference by representing the weights and activations with low-precision data types like 8-bit integer (int8) instead of the usual 32-bit floating point (float32).
+
+Reducing the number of bits means the resulting model requires less memory storage, consumes less energy (in theory), and operations like matrix multiplication can be performed much faster with integer arithmetic. It also allows to run models on embedded devices, which sometimes only support integer data types.
+
+https://huggingface.co/docs/optimum/concept_guides/quantization
+
+
+
+### Knowledge Distillation
+
+Knowledge distillation is a technique that enables knowledge transfer from large, computationally expensive models to smaller ones without losing validity. This allows for deployment on less powerful hardware, making evaluation faster and more efficient.
+
+<img src="images/distillation_output_loss.png">
+
+https://pytorch.org/tutorials/beginner/knowledge_distillation_tutorial.html
+
+
+### Pruning
+
+remove weights (unstructured) or entire channels (structured) to reduce the size of the network. The objective is to preserve the model’s performance while increasing its sparsity.
+
+https://pytorch.org/tutorials/intermediate/pruning_tutorial.html
+
+### Using ML to optimize ML models
+
+Apache TVM is a compiler stack for deep learning systems. It is designed to close the gap between the productivity-focused deep learning frameworks, and the performance- and efficiency-focused hardware backends. TVM works with deep learning frameworks to provide end to end compilation to different backends.
+
+AutoTVM offers a way to tune models and operators by providing a template schedule, and searcing the parameter space defined by the template. These how-tos demonstrate how to write template schedules and optimize them for a variety of different hardware platforms. [Read more](https://daobook.github.io/tvm/docs/how_to/tune_with_autotvm/index.html)
+
+
+<img src="images/ml_tune_ml.jpg">
+
+
+https://daobook.github.io/tvm/docs/how_to/tune_with_autotvm/index.html
+
+https://tvm.apache.org/docs/reference/api/python/autotvm.html
+
+https://github.com/apache/tvm
+
+["Designing Machine Learning Systems" by Chip Huyen](https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/)
+
+
+## Data distribution shifts and monitoring
+
+### Data drift 
+is a change in the statistical properties and characteristics of the input data. It occurs when a machine learning model is in production, as the data it encounters deviates from the data the model was initially trained on or earlier production data. 
+
+This shift in input data distribution can lead to a decline in the model's performance. The reason is, when you create a machine learning model, you can expect it to perform well on data similar to the data used to train it. However, it might struggle to make accurate predictions or decisions if the data keeps changing and the model cannot generalize beyond what it has seen in training.
+
+In simple terms, data drift is a change in the model inputs the model is not trained to handle. Detecting and addressing data drift is vital to maintaining ML model reliability in dynamic settings.
+
+How to [detect drift example](https://madewithml.com/courses/mlops/monitoring/#drift)  
+
+
+https://www.evidentlyai.com/ml-in-production/data-drift
+
+https://github.com/SeldonIO/alibi-detect?tab=readme-ov-file
+
+https://madewithml.com/courses/mlops/monitoring/#drift
+
+### Data validation
+
+Data validation is a term used to describe the process of checking the accuracy and quality of source data to ensure accurate output. Implementing data validation processes for a ML model helps to mitigate “garbage in = garbage out” scenarios, where poor quality data produces a poorly functioning model.
+
+https://github.com/great-expectations/great_expectations
+
+https://github.com/awslabs/deequ
+
+
+
+## Continual learning
+
+training paradigm where a model is updated with some amount of incomming samples or baches of samples(1+...512+...1024+....) with a periodicity (immediately, every minute, every 5 minutes, very hour, once month, once a year...). 
+
+The updated model shouldnt be deployed until its been evalueated. This means that you shouldnt make chanches to existing model directly. Instead, you create replica and update this replica with new data and only replace existing model with updated replica if updated replica proves to be better. The existing model is called the champion model, and the updated replica, the chalanger.
+
+<img src="images/continual_learning.jpg" height="500">
+
+### Stateless Retraining vs Statefull Training
+
+**Stateless Retraining** - the model is trained from scratch each time.
+
+**Statefull Training** - the model continues learnig on new data.
+
+<img src="images/stateless_vs_statfull.jpg" height="385">
+
+### Test in production
+
+- **Shadow deployment**: trafic routed to champion and chalenger, but only champion is serving clients
+
+- **A/B testing**: purpose is usually to see users' response (In a way, how much they like it). But you know that the new version works. So, you actually send randomly both versions of the application to all of them. It can be 50-50, 80-20, 90-10, anything. You might want to see which version attracts more clients and stuff like that.
+
+- **Canary release** is more focused on how well works the new feature. Or if it actually works. It usually will be 90-10, 80-20, A >> B. Never 50-50, because if it goes wrong, you don't want half of your users to have a bad experience. So you are not positive if the new version is going to work as expected.
+
+- **Interleaving experiments**
+
+<img src="images/interleaving_experiments_3.jpg">
+<img src="images/interleaving_experiments.jpg" height="480">
+<img src="images/interleaving_experiments_2.jpg">
+
+
+["Designing Machine Learning Systems" by Chip Huyen](https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/)
+
+https://dl.acm.org/doi/fullHtml/10.1145/3543873.3587572
+
+
+## Testing
+
+https://madewithml.com/courses/mlops/testing/
+
+### Behavioral testing
+
+Besides just looking at metrics, we also want to conduct some behavioral sanity tests. Behavioral testing is the process of testing input data and expected outputs while treating the model as a black box.
+
+Break down behavioral testing into three types of tests:
+
+- **invariance**: Changes should not affect outputs
+- **directional**: Change should affect outputs
+- **minimum functionality**: Simple combination of inputs and expected outputs
+
+https://madewithml.com/courses/mlops/evaluation/
+
+
 
 
 ## ML infrastructure
@@ -1327,7 +1833,7 @@ Layers:
 
 - **Resource management**: tools to schedule and orchestrate your workloads to make the most out of your available resources. Examples: Airflow, Kubeflow, Metaflow.
 
-- **ML platform**: tools for aid the development of ML applications uch as mdel stores, feature stores, monitoring tools. Examples: SageMaker, MLflow
+- **ML platform**: tools for aid the development of ML applications such as mdel stores, feature stores, monitoring tools. Examples: SageMaker, MLflow
 
 - **Development environment**
 
@@ -1336,10 +1842,11 @@ Layers:
 
 #### Development environment
 
-[Ppaermill](https://github.com/nteract/papermill) - is a tool for parameterizing, executing, and analyzing Jupyter Notebooks
+[Papermill](https://github.com/nteract/papermill) - is a tool for parameterizing, executing, and analyzing Jupyter Notebooks
 
 [MLFlow + Papermill](https://eugeneyan.com/writing/experimentation-workflow-with-jupyter-papermill-mlflow/)
 
+[Ray](https://docs.ray.io/en/latest/index.html) - distributed(parallel) computing for training and tuning models, ML frameworks agnostic
 
 
 ## Running ML on edge an mobile devices
@@ -1424,130 +1931,395 @@ https://en.wikipedia.org/wiki/Comparison_of_deep_learning_software
 
 ## Python ecosystem
 
-**NumPy** -  a library for the Python programming language, adding support for large, multi-dimensional arrays and matrices, along with a large collection of high-level mathematical functions to operate on these arrays.
+**[NumPy](https://numpy.org/)** -  a library for the Python programming language, adding support for large, multi-dimensional arrays and matrices, along with a large collection of high-level mathematical functions to operate on these arrays.
 
-**Matplotlib** is a comprehensive library for creating static, animated, and interactive visualizations in Python. Matplotlib makes easy things easy and hard things possible. 
+**[Matplotlib](https://matplotlib.org/)** is a comprehensive library for creating static, animated, and interactive visualizations in Python. Matplotlib makes easy things easy and hard things possible. 
 
-**Pandas** is a fast, powerful, flexible and easy to use open source data analysis and manipulation tool
+**[seaborn](https://seaborn.pydata.org/index.html)** is a Python data visualization library based on matplotlib. It provides a high-level interface for drawing attractive and informative statistical graphics.
 
-**scikit-learn** - Simple and efficient tools for predictive data analysis. Collection of algorithms. Open-source machine learning library. It features various classification, regression and clustering algorithms including support-vector machines, random forests, gradient boosting, k-means and DBSCAN, and is designed to interoperate with the Python numerical and scientific libraries NumPy and SciPy. Collection of toy datasets generation methods.
+**[Pandas](https://pandas.pydata.org/)** is a fast, powerful, flexible and easy to use open source data analysis and manipulation tool
 
-**TorchMetricks**  is a collection of 100+ PyTorch metrics implementations and an easy-to-use API to create custom metrics. https://lightning.ai/docs/torchmetrics/stable/
+**[scikit-learn](https://scikit-learn.org/)** - Simple and efficient tools for predictive data analysis. Collection of algorithms. Open-source machine learning library. It features various classification, regression and clustering algorithms including support-vector machines, random forests, gradient boosting, k-means and DBSCAN, and is designed to interoperate with the Python numerical and scientific libraries NumPy and SciPy. Collection of toy datasets generation methods.
 
-**torchinfo** provides information complementary to what is provided by `print(your_model)` in PyTorch. It prints topology of model, summary, etc https://github.com/TylerYep/torchinfo
+**[TorchMetricks](https://lightning.ai/docs/torchmetrics/stable/)**  is a collection of 100+ PyTorch metrics implementations and an easy-to-use API to create custom metrics. 
 
-**TensorBoard** provides the visualization and tooling needed for machine learning experimentation. Experiment tracking, performance plots, etc. https://www.tensorflow.org/tensorboard
+**[torchinfo](https://github.com/TylerYep/torchinfo)** provides information complementary to what is provided by `print(your_model)` in PyTorch. It prints topology of model, summary, etc 
 
-**Gradio** -  is the fastest way to demo your machine learning model with a friendly web interface https://www.gradio.app/
+**[TensorBoard](https://www.tensorflow.org/tensorboard)** provides the visualization and tooling needed for machine learning experimentation. Experiment tracking, performance plots, etc. 
 
-**alibi-detect** - The package aims to cover both online and offline detectors for tabular data, text, images and time series. Both TensorFlow and PyTorch backends are supported for drift detection. https://github.com/SeldonIO/alibi-detect?tab=readme-ov-file
+**[Gradio](https://www.gradio.app/)** -  is the fastest way to demo your machine learning model with a friendly web interface
 
-**great_expectations** - data validation https://github.com/great-expectations/great_expectations
+**[alibi-detect](https://github.com/SeldonIO/alibi-detect?tab=readme-ov-file)** - outlier, adversarial and drift detection. The package aims to cover both online and offline detectors for tabular data, text, images and time series. Both TensorFlow and PyTorch backends are supported for drift detection.
 
+**[great_expectations](https://github.com/great-expectations/great_expectations)** - data validation
 
-## Performance
+**[Ray](https://docs.ray.io/en/latest/index.html)** - distributed(parallel) computing for training and tuning models, ML frameworks agnostic
 
-### Batching
 
-<img src="images/batch_queries.jpg">
+## Scikit-learn
 
-### Quantization
+### Train/Test split
+```python
+X = df.drop('Label',axis=1)
+y = df['Label']
 
-Quantization is a technique to reduce the computational and memory costs of running inference by representing the weights and activations with low-precision data types like 8-bit integer (int8) instead of the usual 32-bit floating point (float32).
+from sklearn.model_selection import train_test_split
 
-Reducing the number of bits means the resulting model requires less memory storage, consumes less energy (in theory), and operations like matrix multiplication can be performed much faster with integer arithmetic. It also allows to run models on embedded devices, which sometimes only support integer data types.
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=101)
+```
+### Scaler
+```python
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+scaler.fit(X_train)
+X_train = scaler.transform(X_train)
+X_test = scaler.transform(X_test)
+```
+### Grid search
+```python
+base_elastic_model = ElasticNet()
 
-https://huggingface.co/docs/optimum/concept_guides/quantization
+param_grid = {'alpha':[0.1,1,5,10,50,100],
+              'l1_ratio':[.1, .5, .7, .9, .95, .99, 1]}
 
+from sklearn.model_selection import GridSearchCV
 
+# verbose number a personal preference
+grid_model = GridSearchCV(estimator=base_elastic_model,
+                          param_grid=param_grid,
+                          scoring='neg_mean_squared_error',
+                          cv=5,
+                          verbose=2)
 
-### Knowledge Distillation
+grid_model.fit(X_train,y_train)
 
-Knowledge distillation is a technique that enables knowledge transfer from large, computationally expensive models to smaller ones without losing validity. This allows for deployment on less powerful hardware, making evaluation faster and more efficient.
+grid_model.best_estimator_
+# ElasticNet(alpha=0.1, copy_X=True, fit_intercept=True, l1_ratio=1,
+#            max_iter=1000, normalize=False, positive=False, precompute=False,
+#            random_state=None, selection='cyclic', tol=0.0001, warm_start=False)
 
-<img src="images/distillation_output_loss.png">
+grid_model.best_params_
+# {'alpha': 0.1, 'l1_ratio': 1}
+```
+### Performance metric
+```python
+from sklearn.metrics import classification_report,confusion_matrix,accuracy_score
 
-https://pytorch.org/tutorials/beginner/knowledge_distillation_tutorial.html
+print(classification_report(y_test,pred))
+confusion_matrix(y_test,pred)
 
+```
+### Pipeline
+If your parameter grid is going inside a PipeLine, your parameter name needs to be specified in the following manner:
 
-### Using ML to optimize ML models
+    chosen_string_name + two underscores + parameter key name
+    model_name + __ + parameter name
+    knn_model + __ + n_neighbors
+    knn_model__n_neighbors
 
-Apache TVM is a compiler stack for deep learning systems. It is designed to close the gap between the productivity-focused deep learning frameworks, and the performance- and efficiency-focused hardware backends. TVM works with deep learning frameworks to provide end to end compilation to different backends.
+The reason we have to do this is because it let's scikit-learn know what operation in the pipeline these parameters are related to (otherwise it might think n_neighbors was a parameter in the scaler).
 
-AutoTVM offers a way to tune models and operators by providing a template schedule, and searcing the parameter space defined by the template. These how-tos demonstrate how to write template schedules and optimize them for a variety of different hardware platforms. [Read more](https://daobook.github.io/tvm/docs/how_to/tune_with_autotvm/index.html)
+```python
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+scaler = StandardScaler()
+knn = KNeighborsClassifier()
 
+operations = [('scaler', scaler),('knn', knn)]
 
-<img src="images/ml_tune_ml.jpg">
+from sklearn.pipeline import Pipeline
 
+pipe = Pipeline(operations)
 
-https://daobook.github.io/tvm/docs/how_to/tune_with_autotvm/index.html
+from sklearn.model_selection import GridSearchCV
 
-https://tvm.apache.org/docs/reference/api/python/autotvm.html
+param_grid = {'knn__n_neighbors':[1,2,3,4,5,6,7,8,9,10]}
 
-https://github.com/apache/tvm
+full_cv_classifier = GridSearchCV(pipe,param_grid,cv=5,scoring='accuracy')
+full_cv_classifier.fit(X_cv,y_cv)
+full_cv_classifier.best_estimator_.get_params()
+pred = full_cv_classifier.predict(X_test)
 
-["Designing Machine Learning Systems" by Chip Huyen](https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/)
+```
+### Export/Import model
+Its possible import/export file of model, scaller, pipeline
+```python
+from joblib import dump, load
 
+dump(final_model, 'sales_model.joblib') 
 
-## Data distribution shifts and monitoring
+loaded_model = load('sales_model.joblib')
+```
 
-### Data drift 
-is a change in the statistical properties and characteristics of the input data. It occurs when a machine learning model is in production, as the data it encounters deviates from the data the model was initially trained on or earlier production data. 
 
-This shift in input data distribution can lead to a decline in the model's performance. The reason is, when you create a machine learning model, you can expect it to perform well on data similar to the data used to train it. However, it might struggle to make accurate predictions or decisions if the data keeps changing and the model cannot generalize beyond what it has seen in training.
+### Encode labels(targets)
+do not encode features!
+```python
+from sklearn.preprocessing import LabelEncoder
 
-In simple terms, data drift is a change in the model inputs the model is not trained to handle. Detecting and addressing data drift is vital to maintaining ML model reliability in dynamic settings.
+le = LabelEncoder()
+le.fit(["paris", "paris", "tokyo", "amsterdam"])
+list(le.classes_)
+le.transform(["tokyo", "tokyo", "paris"]) # array([2, 2, 1]...)
 
+list(le.inverse_transform([2, 2, 1])) # ['tokyo', 'tokyo', 'paris']
+```
 
-https://www.evidentlyai.com/ml-in-production/data-drift
+### Encode categorical features
+OneHot:
+```python
+df['type'] = pd.get_dummies(df['type'], dtype=int, prefix='type',drop_first=True) # dummy_na=True for nan value category 
 
-https://github.com/SeldonIO/alibi-detect?tab=readme-ov-file
+# OR
 
+type_one_hot = pd.get_dummies(df['type'], dtype=int, prefix='type')
 
-### Data validation
+df = pd.concat([df, type_one_hot], axis=1)
+```
 
-Data validation is a term used to describe the process of checking the accuracy and quality of source data to ensure accurate output. Implementing data validation processes for a ML model helps to mitigate “garbage in = garbage out” scenarios, where poor quality data produces a poorly functioning model.
+### Manual map categories to int
+```python
+df = df['Sex'].map({'male': 1, 'female': 0})
+```
 
-https://github.com/great-expectations/great_expectations
+### Feature importance for model
+```python
+pd.DataFrame(index=X.columns, 
+             data=model.feature_importances_, 
+             columns=['Feature Importance'])
+```
 
-https://github.com/awslabs/deequ
+### Ensemble. Voting classifier
+```python
+from sklearn import datasets
+from sklearn.model_selection import cross_val_score
+from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import GaussianNB
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import VotingClassifier
 
+iris = datasets.load_iris()
+X, y = iris.data[:, 1:3], iris.target
 
+clf1 = LogisticRegression(random_state=1)
+clf2 = RandomForestClassifier(n_estimators=50, random_state=1)
+clf3 = GaussianNB()
 
-## Continual learning
+eclf = VotingClassifier(
+    estimators=[('lr', clf1), ('rf', clf2), ('gnb', clf3)],
+    voting='hard')
 
-training paradigm where a model is updated with some amount of incomming samples or baches of samples(1+...512+...1024+....) with a periodicity (immediately, every minute, every 5 minutes, very hour, once month, once a year...). 
+for clf, label in zip([clf1, clf2, clf3, eclf], ['Logistic Regression', 'Random Forest', 'naive Bayes', 'Ensemble']):
+    scores = cross_val_score(clf, X, y, scoring='accuracy', cv=5)
+    print("Accuracy: %0.2f (+/- %0.2f) [%s]" % (scores.mean(), scores.std(), label))
 
-The updated model shouldnt be deployed until its been evalueated. This means that you shouldnt make chanches to existing model directly. Instead, you create replica and update this replica with new data and only replace existing model with updated replica if updated replica proves to be better. The existing model is called the champion model, and the updated replica, the chalanger.
+# Accuracy: 0.95 (+/- 0.04) [Logistic Regression]
+# Accuracy: 0.94 (+/- 0.04) [Random Forest]
+# Accuracy: 0.91 (+/- 0.04) [naive Bayes]
+# Accuracy: 0.95 (+/- 0.04) [Ensemble]
+```
+https://scikit-learn.org/stable/modules/ensemble.html#voting-classifier
 
-<img src="images/continual_learning.jpg" height="500">
 
-### Stateless Retraining vs Statefull Training
+### regular vs CV(cross validation) model
 
-**Stateless Retraining** - the model is trained from scratch each time.
 
-**Statefull Training** - the model continues learnig on new data.
+## Plots
 
-<img src="images/stateless_vs_statfull.jpg" height="385">
+```python
+sns.catplot(data=df, x="age", y="class")
+```
+<img src="images/catplot.png">
 
-### Test in production
+---
 
-- **Shadow deployment**: trafic routed to champion and chalenger, but only champion is serving clients
+```python
+sns.catplot(data=df, x="age", y="class", kind="box")
+```
+min, max, median, outliers
 
-- **A/B testing**: purpose is usually to see users' response (In a way, how much they like it). But you know that the new version works. So, you actually send randomly both versions of the application to all of them. It can be 50-50, 80-20, 90-10, anything. You might want to see which version attracts more clients and stuff like that.
+<img src="images/catplot2.png">
 
-- **Canary release** is more focused on how well works the new feature. Or if it actually works. It usually will be 90-10, 80-20, A >> B. Never 50-50, because if it goes wrong, you don't want half of your users to have a bad experience. So you are not positive if the new version is going to work as expected.
+---
 
-- **Interleaving experiments**
 
-<img src="images/interleaving_experiments_3.jpg">
-<img src="images/interleaving_experiments.jpg" height="480">
-<img src="images/interleaving_experiments_2.jpg">
+```python
+sns.catplot(data=df, x="age", y="class", hue="sex", kind="boxen")
+```
+<img src="images/catplot3.png">
 
+---
 
-["Designing Machine Learning Systems" by Chip Huyen](https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/)
+more catplots https://seaborn.pydata.org/generated/seaborn.catplot.html
 
-https://dl.acm.org/doi/fullHtml/10.1145/3543873.3587572
+---
+
+```python
+sns.pairplot(penguins, hue="species")
+```
+displays the relationships between columns 
+
+<img src="images/pairplot.png">
+
+---
+
+more pairplots https://seaborn.pydata.org/generated/seaborn.pairplot.html
+
+---
+
+```python
+from sklearn.tree import plot_tree
+plot_tree(model,filled=True,feature_names=X.columns);
+```
+
+<img src="images/tree_plot.jpg">
+
+---
+
+
+```python
+sns.scatterplot(data=tips, x="total_bill", y="tip", hue="time")
+```
+
+<img src="images/scatterplot_5_0.png">
+
+https://seaborn.pydata.org/generated/seaborn.scatterplot.html
+
+---
+
+```python
+sns.barplot(penguins, x="island", y="body_mass_g", hue="sex")
+```
+
+<img src="images/barplot_9_0.png">
+
+https://seaborn.pydata.org/generated/seaborn.barplot.html
+
+---
+
+```python
+sns.histplot(data=penguins, x="flipper_length_mm", bins=30)
+```
+
+<img src="images/histplot_7_0.png">
+
+https://seaborn.pydata.org/generated/seaborn.histplot.html
+
+---
+
+```python
+sns.lineplot(data=flights, x="year", y="passengers", hue="month")
+```
+
+<img src="images/lineplot_13_0.png">
+
+https://seaborn.pydata.org/generated/seaborn.lineplot.html
+
+---
+
+## Pandas snippets
+
+read csv
+```python
+df = pd.read_csv("../DATA/bank-full.csv")
+```
+
+csv write
+```python
+df.to_csv('new_file.csv',index=False)
+```
+
+discover data frame:
+```python
+df.head()
+df.info()
+df.describe()
+```
+
+get unique values of column:
+```python
+df['Contract'].unique()
+```
+
+rows count
+```python
+len(hotels)
+```
+
+count of missing values per column:
+```python
+df.isnull().sum()
+```
+
+select where column is null:
+```python
+df[df['Agriculture'].isnull()]['Country']
+```
+
+fill null with values:
+```python
+df[df['Agriculture'].isnull()] = df[df['Agriculture'].isnull()].fillna(0)
+```
+
+fill null with mean of column:
+```python
+df['Climate'] = df['Climate'].fillna(df.groupby('Region')['Climate'].transform('mean'))
+```
+
+drop rows where is null:
+```python
+df = df.dropna()
+```
+
+drop column
+```python
+X = df.drop("Country",axis=1)
+```
+
+sort values:
+```python
+df.sort_values(ascending=True)
+
+df.sort_values('adr',ascending=False)
+```
+
+correlation of column to others
+```python
+X.corr()['Some column name']
+```
+
+filter
+```python
+df[df['total_of_special_requests'] == 5]
+
+df[(df['total_bill'] > 30) & (df['sex']=='Male')]
+
+df[(df['total_bill'] > 30) & (df['sex']!='Male')]
+
+df[(df['day'] =='Sun') | (df['day']=='Sat')] # or
+
+options = ['Sat','Sun']
+df['day'].isin(options)
+```
+
+transform
+```python
+df['name'].apply(lambda name: name.split()[1])
+```
+
+reshape 3d to 2d:
+```python
+(h,w,c) = image_as_array.shape
+image_as_array2d = image_as_array.reshape(h*w,c)
+``` 
+
+**cheat sheets**:
+
+- https://pandas.pydata.org/Pandas_Cheat_Sheet.pdf
+
+- https://medium.com/bitgrit-data-science-publication/40-useful-pandas-snippets-d7833472d12f
+
+- https://gist.github.com/bsweger/e5817488d161f37dcbd2
 
 
 
@@ -1653,6 +2425,8 @@ Articles:
 Books:
 
 - ["Designing Machine Learning Systems" by Chip Huyen](https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/)
+
+- ["Introduction to Machine Learning Interviews" by Chip Huyen](https://huyenchip.com/ml-interviews-book/contents/4.3.1-courses.html)
 
 
 Cheatsheets:
