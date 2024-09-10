@@ -1094,8 +1094,55 @@ Reinforcement learning deals with a unique problem setup where an arbitrary agen
 
 
 <img src="images/rl_cycle.png" height="420">
+<img src="images/rl_agent_env.jpg">
 
-https://en.wikipedia.org/wiki/Reinforcement_learning
+#### Elements of RL
+
+##### agent
+is the component that makes the decision of what action to take
+
+##### environment
+
+is the world that the agent lives in and interacts with. At every step of interaction, the agent sees a (possibly partial) observation of the state of the world, and then decides on an action to take.
+
+##### policy
+agent’s behaviour function. It is a map from state to action.
+
+##### reward
+is a scalar feedback signal. 
+
+Indicates how well agent is doing at step t. 
+
+The agent’s job is to maximise cumulative reward
+
+
+##### value function
+how good is each state and/or action. 
+
+Value function is a prediction of future reward. 
+
+Used to evaluate the goodness/badness of state
+
+And therefore to select between actions
+
+##### model (optional) 
+
+agent’s representation of the environment
+
+predicts what the environment will do next
+
+predicts the next state
+
+predicts the next (immediate) reward
+
+
+<img src="images/rl_agents_taxonomy.jpg">
+
+
+[david_silver_RL_course/1_intro.pdf](pdf/david_silver_RL_course/1_intro.pdf)
+
+https://www.davidsilver.uk/teaching/
+
 
 
 #### A Taxonomy of RL Algorithms
@@ -1103,6 +1150,113 @@ https://en.wikipedia.org/wiki/Reinforcement_learning
 
 https://spinningup.openai.com/en/latest/spinningup/rl_intro2.html#a-taxonomy-of-rl-algorithms
 
+
+#### The Bellman equation 
+
+simplifies our state value or state-action value calculation.
+
+We know that if we calculate `V(St)` (the value of a state), we need to calculate the return starting at that state and then follow the policy forever after. (The policy we defined in the following example is a Greedy Policy; for simplification, we don’t discount the reward).
+
+So to calculate `V(St)`, we need to calculate the sum of the expected rewards. Hence:
+
+<img src="images/bellman2.png" height="370">
+
+Then, to calculate the `V(St+1)`, we need to calculate the return starting at that state `St+1`.
+
+<img src="images/bellman3.png" height="370">
+
+So you may have noticed, we’re repeating the computation of the value of different states, which can be tedious if you need to do it for each state value or state-action value.
+
+Instead of calculating the expected return for each state or each state-action pair, we can use the Bellman equation.
+
+The Bellman equation is a recursive equation that works like this: instead of starting for each state from the beginning and calculating the return, we can consider the value of any state as:
+
+**The immediate reward `Rt+1` + the discounted value of the state that follows `(γ∗V(St+1))`**
+
+<img src="images/bellman4.png" height="370">
+
+To calculate the value of State 1: the sum of rewards if the agent started in that state 1 and then followed the policy for all the time steps.
+
+<img src="images/bellman6.png" height="370">
+
+
+In the interest of simplicity, here we don’t discount, so gamma = 1
+
+https://huggingface.co/learn/deep-rl-course/unit2/bellman-equation
+
+
+#### Monte Carlo: learning at the end of the episode
+
+<img src="images/monte-carlo-approach.jpg">
+
+<img src="images/MC-3p.jpg">
+
+- We always start the episode at the same starting point.
+
+- The agent takes actions using the policy. For instance, using an Epsilon Greedy Strategy, a policy that alternates between exploration (random actions) and exploitation.
+
+- We get the reward and the next state.
+
+- We terminate the episode if the cat eats the mouse or if the mouse moves > 10 steps.
+
+- At the end of the episode, we have a list of State, Actions, Rewards, and Next States tuples For instance [[State tile 3 bottom, Go Left, +1, State tile 2 bottom], [State tile 2 bottom, Go Left, +0, State tile 1 bottom]…]
+
+- The agent will sum the total rewards `Gt` (to see how well it did).
+
+- It will then update `V(st)` based on the formula
+
+- Then start a new game with this new knowledge
+
+By running more and more episodes, the agent will learn to play better and better.
+
+<img src="images/MC-5p.jpg">
+
+https://huggingface.co/learn/deep-rl-course/unit2/mc-vs-td
+
+https://www.davidsilver.uk/wp-content/uploads/2020/03/MC-TD.pdf
+
+#### Temporal Difference Learning: learning at each step
+
+waits for only one interaction (one step) `St+1` to form a TD target and update `V(St)` using `Rt+1` and `γ∗V(St+1)`.
+
+The idea with TD is to update the `V(St)` at each step.
+
+<img src="images/TD-1.jpg">
+
+<img src="images/TD-1p.jpg">
+
+- We initialize our value function so that it returns 0 value for each state.
+
+- Our learning rate (lr) is 0.1, and our discount rate is 1 (no discount).
+
+- Our mouse begins to explore the environment and takes a random action: going to the left
+
+- It gets a reward `Rt+1=1` since it eats a piece of cheese
+
+<img src="images/TD-3p.jpg">
+
+https://huggingface.co/learn/deep-rl-course/unit2/mc-vs-td
+
+https://www.davidsilver.uk/wp-content/uploads/2020/03/MC-TD.pdf
+
+
+#### DP vs MC vs TD
+
+<img src="images/dp_mc_td.jpg">
+
+With Monte Carlo, we update the value function from a complete episode, and so we use the actual accurate discounted return of this episode.
+
+With TD Learning, we update the value function from a step, and we replace `Gt`, which we don’t know, with an estimated return called the TD target.
+
+TD should be used if episode is endless.
+
+<img src="images/mc_vs_td.jpg">
+
+<img src="images/unified_rl.jpg">
+
+https://www.davidsilver.uk/wp-content/uploads/2020/03/MC-TD.pdf
+
+https://cmudeeprl.github.io/403_website/assets/lectures/s21/s21_rec5_DP&MC&TD.pdf
 
 
 #### Q learning
@@ -2407,6 +2561,10 @@ Courses:
 
 - https://www.learnpytorch.io/
 
+- [Reinforcement Learning](https://www.davidsilver.uk/teaching/)
+
+- [mlops](https://madewithml.com/#course)
+
 
 Lectures:
 
@@ -2420,6 +2578,8 @@ Articles:
 - https://eugeneyan.com/
 
 - https://jalammar.github.io/
+
+- https://dl.acm.org/
 
 
 Books:

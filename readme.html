@@ -1951,11 +1951,115 @@ When diff is smallest, <code>6</code> looks good here:</p>
 <li>learning rule that links two above together</li>
 </ul>
 <p>Reinforcement learning deals with a unique problem setup where an arbitrary agent is trying to learn the optimal way of interacting with an environment. In return for its actions, it receives rewards; the agent’s goal is to find an optimal policy that maximizes cumulative numerical return.</p>
-<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/rl_cycle.png" height="420"></p>
-<p><a href="https://en.wikipedia.org/wiki/Reinforcement_learning">https://en.wikipedia.org/wiki/Reinforcement_learning</a></p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/rl_cycle.png" height="420">
+<img src="/home/isidzukuri/Desktop/ml_algorithms/images/rl_agent_env.jpg"></p>
+<h4 id="elements-of-rl">Elements of RL<a class="headerlink" href="#elements-of-rl" title="Permanent link"></a></h4>
+<h5 id="agent">agent<a class="headerlink" href="#agent" title="Permanent link"></a></h5>
+<p>is the component that makes the decision of what action to take</p>
+<h5 id="environment">environment<a class="headerlink" href="#environment" title="Permanent link"></a></h5>
+<p>is the world that the agent lives in and interacts with. At every step of interaction, the agent sees a (possibly partial) observation of the state of the world, and then decides on an action to take.</p>
+<h5 id="policy">policy<a class="headerlink" href="#policy" title="Permanent link"></a></h5>
+<p>agent’s behaviour function. It is a map from state to action.</p>
+<h5 id="reward">reward<a class="headerlink" href="#reward" title="Permanent link"></a></h5>
+<p>is a scalar feedback signal. </p>
+<p>Indicates how well agent is doing at step t. </p>
+<p>The agent’s job is to maximise cumulative reward</p>
+<h5 id="value-function">value function<a class="headerlink" href="#value-function" title="Permanent link"></a></h5>
+<p>how good is each state and/or action. </p>
+<p>Value function is a prediction of future reward. </p>
+<p>Used to evaluate the goodness/badness of state</p>
+<p>And therefore to select between actions</p>
+<h5 id="model-optional">model (optional)<a class="headerlink" href="#model-optional" title="Permanent link"></a></h5>
+<p>agent’s representation of the environment</p>
+<p>predicts what the environment will do next</p>
+<p>predicts the next state</p>
+<p>predicts the next (immediate) reward</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/rl_agents_taxonomy.jpg"></p>
+<p><a href="/home/isidzukuri/Desktop/ml_algorithms/pdf/david_silver_RL_course/1_intro.pdf">david_silver_RL_course/1_intro.pdf</a></p>
+<p><a href="https://www.davidsilver.uk/teaching/">https://www.davidsilver.uk/teaching/</a></p>
 <h4 id="a-taxonomy-of-rl-algorithms">A Taxonomy of RL Algorithms<a class="headerlink" href="#a-taxonomy-of-rl-algorithms" title="Permanent link"></a></h4>
 <p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/rl_algorithms_9_15.svg" height="420"></p>
 <p><a href="https://spinningup.openai.com/en/latest/spinningup/rl_intro2.html#a-taxonomy-of-rl-algorithms">https://spinningup.openai.com/en/latest/spinningup/rl_intro2.html#a-taxonomy-of-rl-algorithms</a></p>
+<h4 id="the-bellman-equation">The Bellman equation<a class="headerlink" href="#the-bellman-equation" title="Permanent link"></a></h4>
+<p>simplifies our state value or state-action value calculation.</p>
+<p>We know that if we calculate <code>V(St)</code> (the value of a state), we need to calculate the return starting at that state and then follow the policy forever after. (The policy we defined in the following example is a Greedy Policy; for simplification, we don’t discount the reward).</p>
+<p>So to calculate <code>V(St)</code>, we need to calculate the sum of the expected rewards. Hence:</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/bellman2.png" height="370"></p>
+<p>Then, to calculate the <code>V(St+1)</code>, we need to calculate the return starting at that state <code>St+1</code>.</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/bellman3.png" height="370"></p>
+<p>So you may have noticed, we’re repeating the computation of the value of different states, which can be tedious if you need to do it for each state value or state-action value.</p>
+<p>Instead of calculating the expected return for each state or each state-action pair, we can use the Bellman equation.</p>
+<p>The Bellman equation is a recursive equation that works like this: instead of starting for each state from the beginning and calculating the return, we can consider the value of any state as:</p>
+<p><strong>The immediate reward <code>Rt+1</code> + the discounted value of the state that follows <code>(γ∗V(St+1))</code></strong></p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/bellman4.png" height="370"></p>
+<p>To calculate the value of State 1: the sum of rewards if the agent started in that state 1 and then followed the policy for all the time steps.</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/bellman6.png" height="370"></p>
+<p>In the interest of simplicity, here we don’t discount, so gamma = 1</p>
+<p><a href="https://huggingface.co/learn/deep-rl-course/unit2/bellman-equation">https://huggingface.co/learn/deep-rl-course/unit2/bellman-equation</a></p>
+<h4 id="monte-carlo-learning-at-the-end-of-the-episode">Monte Carlo: learning at the end of the episode<a class="headerlink" href="#monte-carlo-learning-at-the-end-of-the-episode" title="Permanent link"></a></h4>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/monte-carlo-approach.jpg"></p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/MC-3p.jpg"></p>
+<ul>
+<li>
+<p>We always start the episode at the same starting point.</p>
+</li>
+<li>
+<p>The agent takes actions using the policy. For instance, using an Epsilon Greedy Strategy, a policy that alternates between exploration (random actions) and exploitation.</p>
+</li>
+<li>
+<p>We get the reward and the next state.</p>
+</li>
+<li>
+<p>We terminate the episode if the cat eats the mouse or if the mouse moves &gt; 10 steps.</p>
+</li>
+<li>
+<p>At the end of the episode, we have a list of State, Actions, Rewards, and Next States tuples For instance [[State tile 3 bottom, Go Left, +1, State tile 2 bottom], [State tile 2 bottom, Go Left, +0, State tile 1 bottom]…]</p>
+</li>
+<li>
+<p>The agent will sum the total rewards <code>Gt</code> (to see how well it did).</p>
+</li>
+<li>
+<p>It will then update <code>V(st)</code> based on the formula</p>
+</li>
+<li>
+<p>Then start a new game with this new knowledge</p>
+</li>
+</ul>
+<p>By running more and more episodes, the agent will learn to play better and better.</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/MC-5p.jpg"></p>
+<p><a href="https://huggingface.co/learn/deep-rl-course/unit2/mc-vs-td">https://huggingface.co/learn/deep-rl-course/unit2/mc-vs-td</a></p>
+<p><a href="https://www.davidsilver.uk/wp-content/uploads/2020/03/MC-TD.pdf">https://www.davidsilver.uk/wp-content/uploads/2020/03/MC-TD.pdf</a></p>
+<h4 id="temporal-difference-learning-learning-at-each-step">Temporal Difference Learning: learning at each step<a class="headerlink" href="#temporal-difference-learning-learning-at-each-step" title="Permanent link"></a></h4>
+<p>waits for only one interaction (one step) <code>St+1</code> to form a TD target and update <code>V(St)</code> using <code>Rt+1</code> and <code>γ∗V(St+1)</code>.</p>
+<p>The idea with TD is to update the <code>V(St)</code> at each step.</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/TD-1.jpg"></p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/TD-1p.jpg"></p>
+<ul>
+<li>
+<p>We initialize our value function so that it returns 0 value for each state.</p>
+</li>
+<li>
+<p>Our learning rate (lr) is 0.1, and our discount rate is 1 (no discount).</p>
+</li>
+<li>
+<p>Our mouse begins to explore the environment and takes a random action: going to the left</p>
+</li>
+<li>
+<p>It gets a reward <code>Rt+1=1</code> since it eats a piece of cheese</p>
+</li>
+</ul>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/TD-3p.jpg"></p>
+<p><a href="https://huggingface.co/learn/deep-rl-course/unit2/mc-vs-td">https://huggingface.co/learn/deep-rl-course/unit2/mc-vs-td</a></p>
+<p><a href="https://www.davidsilver.uk/wp-content/uploads/2020/03/MC-TD.pdf">https://www.davidsilver.uk/wp-content/uploads/2020/03/MC-TD.pdf</a></p>
+<h4 id="dp-vs-mc-vs-td">DP vs MC vs TD<a class="headerlink" href="#dp-vs-mc-vs-td" title="Permanent link"></a></h4>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/dp_mc_td.jpg"></p>
+<p>With Monte Carlo, we update the value function from a complete episode, and so we use the actual accurate discounted return of this episode.</p>
+<p>With TD Learning, we update the value function from a step, and we replace <code>Gt</code>, which we don’t know, with an estimated return called the TD target.</p>
+<p>TD should be used if episode is endless.</p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/mc_vs_td.jpg"></p>
+<p><img src="/home/isidzukuri/Desktop/ml_algorithms/images/unified_rl.jpg"></p>
+<p><a href="https://www.davidsilver.uk/wp-content/uploads/2020/03/MC-TD.pdf">https://www.davidsilver.uk/wp-content/uploads/2020/03/MC-TD.pdf</a></p>
+<p><a href="https://cmudeeprl.github.io/403_website/assets/lectures/s21/s21_rec5_DP&amp;MC&amp;TD.pdf">https://cmudeeprl.github.io/403_website/assets/lectures/s21/s21_rec5_DP&amp;MC&amp;TD.pdf</a></p>
 <h4 id="q-learning">Q learning<a class="headerlink" href="#q-learning" title="Permanent link"></a></h4>
 <p>Q-learning is a model-free reinforcement learning algorithm to learn the value of an action in a particular state. It does not require a model of the environment (hence &ldquo;model-free&rdquo;), and it can handle problems with stochastic transitions and rewards without requiring adaptations.</p>
 <p>For any finite Markov decision process (FMDP), Q-learning finds an optimal policy in the sense of maximizing the expected value of the total reward over any and all successive steps, starting from the current state. Q-learning can identify an optimal action-selection policy for any given FMDP, given infinite exploration time and a partly-random policy. &ldquo;Q&rdquo; refers to the function that the algorithm computes – the expected rewards for an action taken in a given state.</p>
@@ -2860,6 +2964,12 @@ displays the relationships between columns </p>
 </li>
 <li>
 <p><a href="https://www.learnpytorch.io/">https://www.learnpytorch.io/</a></p>
+</li>
+<li>
+<p><a href="https://www.davidsilver.uk/teaching/">Reinforcement Learning</a></p>
+</li>
+<li>
+<p><a href="https://madewithml.com/#course">mlops</a></p>
 </li>
 </ul>
 <p>Lectures:</p>
